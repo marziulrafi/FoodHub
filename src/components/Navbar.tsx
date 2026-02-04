@@ -1,7 +1,10 @@
+"use client";
+
 import { useState } from "react";
-import { Link, useLocation } from "react-router";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ShoppingCart, User, ChefHat } from "lucide-react";
+import { Menu, X, ShoppingCart, ChefHat } from "lucide-react";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -11,16 +14,16 @@ const navLinks = [
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation();
+  const pathname = usePathname();
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => pathname === path;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-border/50">
       <div className="section-container">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center gap-2 group">
             <div className="p-2 rounded-xl bg-primary text-primary-foreground transition-transform group-hover:scale-110">
               <ChefHat className="w-6 h-6" />
             </div>
@@ -34,7 +37,7 @@ const Navbar = () => {
             {navLinks.map((link) => (
               <Link
                 key={link.href}
-                to={link.href}
+                href={link.href}
                 className={`relative font-medium transition-colors hover:text-primary ${
                   isActive(link.href) ? "text-primary" : "text-foreground"
                 }`}
@@ -52,21 +55,25 @@ const Navbar = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
-            <Link to="/cart">
-              <Button variant="ghost" size="icon" className="relative">
+            <Link href="/cart">
+              <button className="relative inline-flex h-10 w-10 items-center justify-center rounded-lg text-foreground transition hover:bg-muted">
                 <ShoppingCart className="w-5 h-5" />
                 <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
                   0
                 </span>
-              </Button>
+              </button>
             </Link>
-            <Link to="/login">
-              <Button variant="outline" size="sm">
+
+            <Link href="/login">
+              <button className="h-9 rounded-md border-2 border-primary px-4 text-sm font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground">
                 Login
-              </Button>
+              </button>
             </Link>
-            <Link to="/register">
-              <Button size="sm">Sign Up</Button>
+
+            <Link href="/register">
+              <button className="h-9 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90">
+                Sign Up
+              </button>
             </Link>
           </div>
 
@@ -74,6 +81,7 @@ const Navbar = () => {
           <button
             className="md:hidden p-2 text-foreground"
             onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle menu"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -93,7 +101,7 @@ const Navbar = () => {
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
-                  to={link.href}
+                  href={link.href}
                   onClick={() => setIsOpen(false)}
                   className={`block py-2 font-medium transition-colors ${
                     isActive(link.href) ? "text-primary" : "text-foreground"
@@ -102,14 +110,18 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
+
               <div className="flex gap-3 pt-4 border-t border-border">
-                <Link to="/login" className="flex-1">
-                  <Button variant="outline" className="w-full">
+                <Link href="/login" className="flex-1">
+                  <button className="w-full h-11 rounded-lg border-2 border-primary font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground">
                     Login
-                  </Button>
+                  </button>
                 </Link>
-                <Link to="/register" className="flex-1">
-                  <Button className="w-full">Sign Up</Button>
+
+                <Link href="/register" className="flex-1">
+                  <button className="w-full h-11 rounded-lg bg-primary font-semibold text-primary-foreground transition hover:bg-primary/90">
+                    Sign Up
+                  </button>
                 </Link>
               </div>
             </div>
