@@ -30,10 +30,10 @@ export default function RegisterPage() {
         name: form.name,
         email: form.email,
         password: form.password,
-        // role: form.role,
-        // phone: form.phone,
         callbackURL: "/",
-      });
+        role: form.role.toUpperCase(),
+        phone: form.phone || undefined,
+      } as any);
       if (error) throw new Error(error.message);
       toast.success("Account created! Welcome to FoodHub!");
       router.push("/");
@@ -62,11 +62,10 @@ export default function RegisterPage() {
                   key={r}
                   type="button"
                   onClick={() => setForm((p) => ({ ...p, role: r }))}
-                  className={`py-3 rounded-xl border-2 text-sm font-medium transition-all capitalize ${
-                    form.role === r
+                  className={`py-3 rounded-xl border-2 text-sm font-medium transition-all capitalize ${form.role === r
                       ? "border-primary-500 bg-primary-50 text-primary-700"
                       : "border-gray-200 text-gray-600 hover:border-gray-300"
-                  }`}
+                    }`}
                 >
                   {r === "customer" ? "🛒 Customer" : "🍳 Provider"}
                 </button>
