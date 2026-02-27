@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useMeals, useCategories, useProviders } from "@/hooks/useApi";
+import { MealCard } from "@/components/features/meals/MealCard";
+import { Spinner } from "@/components/ui";
 import { ArrowRight, Search } from "lucide-react";
 
 export default function HomePage() {
@@ -72,7 +74,31 @@ export default function HomePage() {
         </section>
       )}
 
-      
+      {/* Featured Meals */}
+      <section className="py-12 px-4 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Featured Meals</h2>
+            <Link
+              href="/meals"
+              className="text-primary-600 hover:underline flex items-center gap-1 text-sm"
+            >
+              See all <ArrowRight size={16} />
+            </Link>
+          </div>
+          {mealsLoading ? (
+            <div className="flex justify-center py-12">
+              <Spinner />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {meals?.map((meal) => (
+                <MealCard key={meal.id} meal={meal} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Restaurants */}
       {providers && providers.length > 0 && (
