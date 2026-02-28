@@ -20,14 +20,15 @@ export const queryKeys = {
   adminStats: () => ["admin", "stats"],
 };
 
+// ─── Meals ────────────────────────────────────────────────────────────────────
 
 export function useMeals(filters?: Record<string, string>) {
   return useQuery({
     queryKey: queryKeys.meals(filters),
     queryFn: () =>
       api
-        .get<{ meals: Meal[] }>("/api/meals", { params: filters })
-        .then((r) => r.data.meals),
+        .get<{ data: Meal[] }>("/api/v1/meals", { params: filters })
+        .then((r) => r.data.data),
   });
 }
 
@@ -35,18 +36,22 @@ export function useMeal(id: string) {
   return useQuery({
     queryKey: queryKeys.meal(id),
     queryFn: () =>
-      api.get<{ meal: Meal }>(`/api/meals/${id}`).then((r) => r.data.meal),
+      api
+        .get<{ data: Meal }>(`/api/v1/meals/${id}`)
+        .then((r) => r.data.data),
     enabled: !!id,
   });
 }
+
+// ─── Providers ────────────────────────────────────────────────────────────────
 
 export function useProviders() {
   return useQuery({
     queryKey: queryKeys.providers(),
     queryFn: () =>
       api
-        .get<{ providers: ProviderProfile[] }>("/api/providers")
-        .then((r) => r.data.providers),
+        .get<{ data: ProviderProfile[] }>("/api/v1/providers")
+        .then((r) => r.data.data),
   });
 }
 
@@ -55,28 +60,54 @@ export function useProvider(id: string) {
     queryKey: queryKeys.provider(id),
     queryFn: () =>
       api
-        .get<{ provider: ProviderProfile }>(`/api/providers/${id}`)
-        .then((r) => r.data.provider),
+        .get<{ data: ProviderProfile }>(`/api/v1/providers/${id}`)
+        .then((r) => r.data.data),
     enabled: !!id,
   });
 }
+
+// ─── Categories ───────────────────────────────────────────────────────────────
 
 export function useCategories() {
   return useQuery({
     queryKey: queryKeys.categories(),
     queryFn: () =>
       api
-        .get<{ categories: Category[] }>("/api/categories")
-        .then((r) => r.data.categories),
+        .get<{ data: Category[] }>("/api/v1/categories")
+        .then((r) => r.data.data),
   });
 }
 
+export function useAddCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { name: string; description?: string; image?: string }) =>
+      api
+        .post<{ data: Category }>("/api/v1/categories", data)
+        .then((r) => r.data.data),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.categories() }),
+  });
+}
+
+export function useDeleteCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.delete(`/api/v1/categories/${id}`),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.categories() }),
+  });
+}
+
+// ─── Orders ───────────────────────────────────────────────────────────────────
 
 export function useOrders() {
   return useQuery({
     queryKey: queryKeys.orders(),
     queryFn: () =>
-      api.get<{ orders: Order[] }>("/api/orders").then((r) => r.data.orders),
+      api
+        .get<{ data: Order[] }>("/api/v1/orders")
+        .then((r) => r.data.data),
   });
 }
 
@@ -85,8 +116,8 @@ export function useOrder(id: string) {
     queryKey: queryKeys.order(id),
     queryFn: () =>
       api
-        .get<{ order: Order }>(`/api/orders/${id}`)
-        .then((r) => r.data.order),
+        .get<{ data: Order }>(`/api/v1/orders/${id}`)
+        .then((r) => r.data.data),
     enabled: !!id,
   });
 }
@@ -100,8 +131,8 @@ export function usePlaceOrder() {
       items: { mealId: string; quantity: number }[];
     }) =>
       api
-        .post<{ order: Order }>("/api/orders", data)
-        .then((r) => r.data.order),
+        .post<{ data: Order }>("/api/v1/orders", data)
+        .then((r) => r.data.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.orders() }),
   });
 }
@@ -110,7 +141,9 @@ export function useCancelOrder() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (orderId: string) =>
-      api.patch(`/api/orders/${orderId}/cancel`).then((r) => r.data.order),
+      api
+        .patch<{ data: Order }>(`/api/v1/orders/${orderId}/cancel`)
+        .then((r) => r.data.data),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: queryKeys.orders() }),
   });
@@ -124,40 +157,23 @@ export function useLeaveReview() {
       orderId: string;
       rating: number;
       comment?: string;
-    }) => api.post("/api/reviews", data).then((r) => r.data.review),
+    }) =>
+      api
+        .post<{ data: unknown }>("/api/v1/reviews", data)
+        .then((r) => r.data.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.orders() }),
   });
 }
 
+// ─── Provider Meals ───────────────────────────────────────────────────────────
 
 export function useProviderMeals() {
   return useQuery({
     queryKey: queryKeys.providerMeals(),
     queryFn: () =>
       api
-        .get<{ meals: Meal[] }>("/api/provider/meals")
-        .then((r) => r.data.meals),
-  });
-}
-
-export function useProviderOrders() {
-  return useQuery({
-    queryKey: queryKeys.providerOrders(),
-    queryFn: () =>
-      api
-        .get<{ orders: Order[] }>("/api/provider/orders")
-        .then((r) => r.data.orders),
-    refetchInterval: 30000,
-  });
-}
-
-export function useProviderStats() {
-  return useQuery({
-    queryKey: queryKeys.providerStats(),
-    queryFn: () =>
-      api
-        .get<{ stats: Record<string, unknown> }>("/api/provider/stats")
-        .then((r) => r.data.stats),
+        .get<{ data: Meal[] }>("/api/v1/meals/provider/mine")
+        .then((r) => r.data.data),
   });
 }
 
@@ -166,8 +182,8 @@ export function useAddMeal() {
   return useMutation({
     mutationFn: (data: Partial<Meal>) =>
       api
-        .post<{ meal: Meal }>("/api/provider/meals", data)
-        .then((r) => r.data.meal),
+        .post<{ data: Meal }>("/api/v1/meals/provider", data)
+        .then((r) => r.data.data),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: queryKeys.providerMeals() }),
   });
@@ -178,8 +194,8 @@ export function useUpdateMeal() {
   return useMutation({
     mutationFn: ({ id, ...data }: Partial<Meal> & { id: string }) =>
       api
-        .put<{ meal: Meal }>(`/api/provider/meals/${id}`, data)
-        .then((r) => r.data.meal),
+        .put<{ data: Meal }>(`/api/v1/meals/provider/${id}`, data)
+        .then((r) => r.data.data),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: queryKeys.providerMeals() }),
   });
@@ -188,9 +204,22 @@ export function useUpdateMeal() {
 export function useDeleteMeal() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/api/provider/meals/${id}`),
+    mutationFn: (id: string) => api.delete(`/api/v1/meals/provider/${id}`),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: queryKeys.providerMeals() }),
+  });
+}
+
+// ─── Provider Orders ──────────────────────────────────────────────────────────
+
+export function useProviderOrders() {
+  return useQuery({
+    queryKey: queryKeys.providerOrders(),
+    queryFn: () =>
+      api
+        .get<{ data: Order[] }>("/api/v1/providers/orders/mine")
+        .then((r) => r.data.data),
+    refetchInterval: 30000,
   });
 }
 
@@ -199,21 +228,34 @@ export function useUpdateOrderStatus() {
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
       api
-        .patch(`/api/provider/orders/${id}`, { status })
-        .then((r) => r.data.order),
+        .patch<{ data: Order }>(`/api/v1/providers/orders/${id}/status`, { status })
+        .then((r) => r.data.data),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: queryKeys.providerOrders() }),
   });
 }
 
+// ─── Provider Stats ───────────────────────────────────────────────────────────
+
+export function useProviderStats() {
+  return useQuery({
+    queryKey: queryKeys.providerStats(),
+    queryFn: () =>
+      api
+        .get<{ data: Record<string, unknown> }>("/api/v1/providers/dashboard/stats")
+        .then((r) => r.data.data),
+  });
+}
+
+// ─── Admin ────────────────────────────────────────────────────────────────────
 
 export function useAdminStats() {
   return useQuery({
     queryKey: queryKeys.adminStats(),
     queryFn: () =>
       api
-        .get<{ stats: Record<string, unknown> }>("/api/admin/stats")
-        .then((r) => r.data.stats),
+        .get<{ data: Record<string, unknown> }>("/api/v1/admin/stats")
+        .then((r) => r.data.data),
   });
 }
 
@@ -221,23 +263,19 @@ export function useAdminUsers() {
   return useQuery({
     queryKey: queryKeys.adminUsers(),
     queryFn: () =>
-      api.get<{ users: User[] }>("/api/admin/users").then((r) => r.data.users),
+      api
+        .get<{ data: User[] }>("/api/v1/admin/users")
+        .then((r) => r.data.data),
   });
 }
 
 export function useUpdateUserStatus() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      id,
-      status,
-    }: {
-      id: string;
-      status: "active" | "suspended";
-    }) =>
+    mutationFn: ({ id, status }: { id: string; status: "active" | "suspended" }) =>
       api
-        .patch(`/api/admin/users/${id}`, { status })
-        .then((r) => r.data.user),
+        .patch<{ data: User }>(`/api/v1/admin/users/${id}`, { status })
+        .then((r) => r.data.data),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: queryKeys.adminUsers() }),
   });
@@ -248,28 +286,7 @@ export function useAdminOrders() {
     queryKey: queryKeys.adminOrders(),
     queryFn: () =>
       api
-        .get<{ orders: Order[] }>("/api/admin/orders")
-        .then((r) => r.data.orders),
-  });
-}
-
-export function useAddCategory() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: { name: string; slug: string }) =>
-      api
-        .post<{ category: Category }>("/api/categories", data)
-        .then((r) => r.data.category),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: queryKeys.categories() }),
-  });
-}
-
-export function useDeleteCategory() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => api.delete(`/api/categories/${id}`),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: queryKeys.categories() }),
+        .get<{ data: Order[] }>("/api/v1/admin/orders")
+        .then((r) => r.data.data),
   });
 }
