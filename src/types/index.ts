@@ -1,11 +1,12 @@
-export type Role = "customer" | "provider" | "admin";
+export type Role = "CUSTOMER" | "PROVIDER" | "ADMIN";
 export type OrderStatus =
-  | "placed"
-  | "preparing"
-  | "ready"
-  | "delivered"
-  | "cancelled";
-export type UserStatus = "active" | "suspended";
+  | "PLACED"
+  | "PREPARING"
+  | "READY"
+  | "DELIVERED"
+  | "CANCELLED";
+export type UserStatus = "ACTIVE" | "SUSPENDED";
+export type ProviderStatus = "PENDING" | "APPROVED" | "REJECTED";
 
 export interface User {
   id: string;
@@ -31,8 +32,13 @@ export interface ProviderProfile {
   restaurantName: string;
   description?: string;
   address?: string;
-  coverImage?: string;
-  isOpen: boolean;
+  logo?: string;
+  city?: string;
+  phone?: string;
+  status?: ProviderStatus;
+  isVerified: boolean;
+  rating: number;
+  totalOrders?: number;
   user?: Pick<User, "id" | "name" | "email" | "image">;
   meals?: Meal[];
 }
@@ -41,15 +47,15 @@ export interface Meal {
   id: string;
   providerId: string;
   categoryId?: string;
-  name: string;
+  title: string;
   description?: string;
-  price: string;
+  price: number;
   image?: string;
   isAvailable: boolean;
   isVegetarian: boolean;
   isVegan: boolean;
   createdAt: string;
-  provider?: Pick<ProviderProfile, "restaurantName" | "isOpen">;
+  provider?: Pick<ProviderProfile, "restaurantName">;
   category?: Pick<Category, "name" | "slug">;
   reviews?: Review[];
 }
@@ -59,9 +65,9 @@ export interface OrderItem {
   orderId: string;
   mealId: string;
   quantity: number;
-  unitPrice: string;
-  subtotal: string;
-  meal?: Pick<Meal, "id" | "name" | "image">;
+  price: number;
+  name: string;
+  meal?: Pick<Meal, "id" | "title" | "image">;
 }
 
 export interface Order {
@@ -69,9 +75,9 @@ export interface Order {
   customerId: string;
   providerId: string;
   status: OrderStatus;
-  deliveryAddress: string;
-  totalAmount: string;
-  notes?: string;
+  address: string;
+  totalAmount: number;
+  note?: string;
   createdAt: string;
   updatedAt: string;
   items?: OrderItem[];
@@ -81,9 +87,8 @@ export interface Order {
 
 export interface Review {
   id: string;
-  customerId: string;
+  userId: string;
   mealId: string;
-  orderId: string;
   rating: number;
   comment?: string;
   createdAt: string;

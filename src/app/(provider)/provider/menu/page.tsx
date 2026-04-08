@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   useProviderMeals,
+  useMyProviderProfile,
   useAddMeal,
   useUpdateMeal,
   useDeleteMeal,
@@ -14,7 +16,7 @@ import toast from "react-hot-toast";
 import type { Meal } from "@/types";
 
 interface MealForm {
-  name: string;
+  title: string;
   description: string;
   price: string;
   categoryId: string;
@@ -25,7 +27,7 @@ interface MealForm {
 }
 
 const defaultForm: MealForm = {
-  name: "",
+  title: "",
   description: "",
   price: "",
   categoryId: "",
@@ -36,7 +38,15 @@ const defaultForm: MealForm = {
 };
 
 export default function ProviderMenuPage() {
-  const { data: meals, isLoading } = useProviderMeals();
+  const router = useRouter();
+  const {
+    data: myProfile,
+    isLoading: profileLoading,
+    isError: profileError,
+  } = useMyProviderProfile();
+
+  const mealsEnabled = !profileLoading && !!myProfile && !profileError;
+  const { data: meals, isLoading: mealsLoading } = useProviderMeals(mealsEnabled);
   const { data: categories } = useCategories();
   const addMeal = useAddMeal();
   const updateMeal = useUpdateMeal();
@@ -46,6 +56,27 @@ export default function ProviderMenuPage() {
   const [editingMeal, setEditingMeal] = useState<Meal | null>(null);
   const [form, setForm] = useState<MealForm>(defaultForm);
 
+  useEffect(() => {
+    if (!profileLoading && (!myProfile || profileError)) {
+      toast.error(
+        "Please create your restaurant profile before adding meals."
+      );
+      router.replace("/provider/dashboard");
+    }
+  }, [profileLoading, myProfile, profileError, router]);
+
+  if (profileLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (!myProfile || profileError) {
+    return null;
+  }
+
   const openAdd = () => {
     setEditingMeal(null);
     setForm(defaultForm);
@@ -54,9 +85,9 @@ export default function ProviderMenuPage() {
   const openEdit = (meal: Meal) => {
     setEditingMeal(meal);
     setForm({
-      name: meal.name,
+      title: meal.title,
       description: meal.description || "",
-      price: meal.price,
+        price: meal.price.toString(),
       categoryId: meal.categoryId || "",
       image: meal.image || "",
       isAvailable: meal.isAvailable,
@@ -77,10 +108,10 @@ export default function ProviderMenuPage() {
       };
 
       if (editingMeal) {
-        await updateMeal.mutateAsync({ id: editingMeal.id, ...form });
+        await updateMeal.mutateAsync({ id: editingMeal.id, ...payload });
         toast.success("Meal updated!");
       } else {
-        await addMeal.mutateAsync(form);
+        await addMeal.mutateAsync(payload);
         toast.success("Meal added!");
       }
       setShowModal(false);
@@ -125,7 +156,7 @@ export default function ProviderMenuPage() {
         </button>
       </div>
 
-      {isLoading ? (
+      {mealsLoading ? (
         <div className="flex justify-center py-12">
           <Spinner />
         </div>
@@ -143,7 +174,7 @@ export default function ProviderMenuPage() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={meal.image}
-                    alt={meal.name}
+                    alt={meal.title}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -153,9 +184,9 @@ export default function ProviderMenuPage() {
               <div className="p-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-semibold text-gray-900">{meal.name}</h3>
+                    <h3 className="font-semibold text-gray-900">{meal.title}</h3>
                     <p className="text-primary-600 font-bold">
-                      ৳{parseFloat(meal.price).toFixed(0)}
+                      ৳{meal.price.toFixed(0)}
                     </p>
                   </div>
                   <Badge
@@ -171,7 +202,7 @@ export default function ProviderMenuPage() {
                     <Pencil size={13} /> Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(meal.id, meal.name)}
+                    onClick={() => handleDelete(meal.id, meal.title)}
                     className="btn-danger text-sm px-3 py-1.5"
                   >
                     <Trash2 size={14} />
@@ -200,13 +231,13 @@ export default function ProviderMenuPage() {
             <form onSubmit={handleSubmit} className="p-5 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Name *
+                  Title *
                 </label>
                 <input
                   className="input"
                   required
-                  value={form.name}
-                  onChange={field("name")}
+                  value={form.title}
+                  onChange={field("title")}
                   placeholder="Chicken Biryani"
                 />
               </div>

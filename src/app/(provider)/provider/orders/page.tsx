@@ -8,17 +8,17 @@ import type { Order, OrderStatus } from "@/types";
 
 const ALL_STATUSES = [
   "all",
-  "placed",
-  "preparing",
-  "ready",
-  "delivered",
-  "cancelled",
+  "PLACED",
+  "PREPARING",
+  "READY",
+  "DELIVERED",
+  "CANCELLED",
 ] as const;
 
 const nextStatus: Record<string, string> = {
-  placed: "preparing",
-  preparing: "ready",
-  ready: "delivered",
+  PLACED: "PREPARING",
+  PREPARING: "READY",
+  READY: "DELIVERED",
 };
 
 export default function ProviderOrdersPage() {
@@ -88,7 +88,7 @@ export default function ProviderOrdersPage() {
                       ` · 📞 ${(order.customer as { phone?: string }).phone}`}
                   </p>
                   <p className="text-sm text-gray-500 mt-0.5">
-                    📍 {order.deliveryAddress}
+                    📍 {order.address}
                   </p>
                   <div className="flex flex-wrap gap-1 mt-2">
                     {order.items?.map((item) => (
@@ -96,19 +96,19 @@ export default function ProviderOrdersPage() {
                         key={item.id}
                         className="text-xs bg-gray-100 px-2 py-0.5 rounded-full text-gray-600"
                       >
-                        {item.meal?.name} ×{item.quantity}
+                        {item.meal?.title ?? item.name} ×{item.quantity}
                       </span>
                     ))}
                   </div>
-                  {order.notes && (
+                  {order.note && (
                     <p className="text-xs text-amber-600 mt-1">
-                      📝 {order.notes}
+                      📝 {order.note}
                     </p>
                   )}
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-gray-900 text-lg">
-                    ৳{parseFloat(order.totalAmount).toFixed(0)}
+                    ৳{order.totalAmount.toFixed(0)}
                   </p>
                   <p className="text-xs text-gray-400">
                     {new Date(order.createdAt).toLocaleString()}

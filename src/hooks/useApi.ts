@@ -9,6 +9,7 @@ export const queryKeys = {
   meal: (id: string) => ["meal", id],
   providers: () => ["providers"],
   provider: (id: string) => ["provider", id],
+  providerMe: () => ["provider", "me"],
   categories: () => ["categories"],
   orders: () => ["orders"],
   order: (id: string) => ["order", id],
@@ -18,6 +19,7 @@ export const queryKeys = {
   adminUsers: () => ["admin", "users"],
   adminOrders: () => ["admin", "orders"],
   adminStats: () => ["admin", "stats"],
+  adminPendingProviders: () => ["admin", "providers", "pending"],
 };
 
 // ─── Meals ────────────────────────────────────────────────────────────────────
@@ -126,8 +128,8 @@ export function usePlaceOrder() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: {
-      deliveryAddress: string;
-      notes?: string;
+      address: string;
+      note?: string;
       items: { mealId: string; quantity: number }[];
     }) =>
       api
@@ -167,12 +169,23 @@ export function useLeaveReview() {
 
 // ─── Provider Meals ───────────────────────────────────────────────────────────
 
-export function useProviderMeals() {
+export function useProviderMeals(enabled = true) {
   return useQuery({
     queryKey: queryKeys.providerMeals(),
     queryFn: () =>
       api
         .get<{ data: Meal[] }>("/api/v1/meals/provider/mine")
+        .then((r) => r.data.data),
+    enabled,
+  });
+}
+
+export function useMyProviderProfile() {
+  return useQuery({
+    queryKey: queryKeys.providerMe(),
+    queryFn: () =>
+      api
+        .get<{ data: ProviderProfile | null }>("/api/v1/providers/profile/me")
         .then((r) => r.data.data),
   });
 }
@@ -254,8 +267,8 @@ export function useAdminStats() {
     queryKey: queryKeys.adminStats(),
     queryFn: () =>
       api
-        .get<{ data: Record<string, unknown> }>("/api/v1/admin/stats")
-        .then((r) => r.data.data),
+        .get<{ data: { stats: Record<string, unknown> } }>("/api/v1/admin/dashboard")
+        .then((r) => (r.data.data?.stats ?? {}) as Record<string, unknown>),
   });
 }
 
@@ -272,7 +285,7 @@ export function useAdminUsers() {
 export function useUpdateUserStatus() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: "active" | "suspended" }) =>
+    mutationFn: ({ id, status }: { id: string; status: "ACTIVE" | "SUSPENDED" }) =>
       api
         .patch<{ data: User }>(`/api/v1/admin/users/${id}`, { status })
         .then((r) => r.data.data),
@@ -288,5 +301,39 @@ export function useAdminOrders() {
       api
         .get<{ data: Order[] }>("/api/v1/admin/orders")
         .then((r) => r.data.data),
+  });
+}
+
+export function useAdminPendingProviders() {
+  return useQuery({
+    queryKey: queryKeys.adminPendingProviders(),
+    queryFn: () =>
+      api
+        .get<{ data: ProviderProfile[] }>("/api/v1/admin/providers/pending")
+        .then((r) => r.data.data),
+  });
+}
+
+export function useApproveProvider() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      api.patch(`/api/v1/admin/providers/${id}/approve`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.adminPendingProviders() });
+      qc.invalidateQueries({ queryKey: queryKeys.providers() });
+    },
+  });
+}
+
+export function useRejectProvider() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      api.patch(`/api/v1/admin/providers/${id}/reject`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.adminPendingProviders() });
+      qc.invalidateQueries({ queryKey: queryKeys.providers() });
+    },
   });
 }
