@@ -9,10 +9,10 @@ import toast from "react-hot-toast";
 import type { OrderStatus } from "@/types";
 
 const statusSteps: OrderStatus[] = [
-  "placed",
-  "preparing",
-  "ready",
-  "delivered",
+  "PLACED",
+  "PREPARING",
+  "READY",
+  "DELIVERED",
 ];
 
 export default function OrderDetailPage({
@@ -35,7 +35,7 @@ export default function OrderDetailPage({
     );
 
   const currentStep =
-    order.status === "cancelled"
+    order.status === "CANCELLED"
       ? -1
       : statusSteps.indexOf(order.status as OrderStatus);
 
@@ -88,7 +88,7 @@ export default function OrderDetailPage({
         <Badge label={order.status} variant={order.status} />
       </div>
 
-      {order.status !== "cancelled" && (
+      {order.status !== "CANCELLED" && (
         <div className="card p-5 mb-4">
           <div className="flex items-center justify-between relative">
             <div className="absolute top-3 left-0 right-0 h-0.5 bg-gray-200 -z-0" />
@@ -132,34 +132,34 @@ export default function OrderDetailPage({
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-900">
-                    {item.meal?.name}
+                    {item.meal?.title ?? item.name}
                   </p>
                   <p className="text-xs text-gray-500">
-                    ×{item.quantity} · ৳{item.unitPrice} each
+                    ×{item.quantity} · ৳{item.price} each
                   </p>
                 </div>
               </div>
               <span className="font-medium text-gray-900">
-                ৳{item.subtotal}
+                ৳{item.price * item.quantity}
               </span>
             </div>
           ))}
         </div>
         <div className="border-t border-gray-100 pt-3 mt-3 flex justify-between font-bold text-gray-900">
           <span>Total</span>
-          <span>৳{parseFloat(order.totalAmount).toFixed(0)}</span>
+          <span>৳{order.totalAmount.toFixed(0)}</span>
         </div>
       </div>
 
       <div className="card p-5 mb-4">
         <h2 className="font-semibold text-gray-900 mb-1">Delivery Address</h2>
-        <p className="text-gray-600 text-sm">{order.deliveryAddress}</p>
-        {order.notes && (
-          <p className="text-xs text-gray-400 mt-1">Note: {order.notes}</p>
+        <p className="text-gray-600 text-sm">{order.address}</p>
+        {order.note && (
+          <p className="text-xs text-gray-400 mt-1">Note: {order.note}</p>
         )}
       </div>
 
-      {order.status === "placed" && (
+      {order.status === "PLACED" && (
         <button
           onClick={handleCancel}
           disabled={cancelOrder.isPending}
@@ -169,13 +169,15 @@ export default function OrderDetailPage({
         </button>
       )}
 
-      {order.status === "delivered" && order.items && (
+      {order.status === "DELIVERED" && order.items && (
         <div className="card p-5">
           <h2 className="font-semibold text-gray-900 mb-3">Leave a Review</h2>
           {order.items.map((item) => (
             <div key={item.id} className="mb-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-700">{item.meal?.name}</span>
+                <span className="text-sm text-gray-700">
+                  {item.meal?.title ?? item.name}
+                </span>
                 <button
                   onClick={() =>
                     setReviewMealId(

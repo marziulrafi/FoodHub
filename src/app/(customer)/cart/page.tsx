@@ -45,7 +45,7 @@ export default function CartPage() {
               {item.meal.image ? (
                 <img
                   src={item.meal.image}
-                  alt={item.meal.name}
+                  alt={item.meal.title}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -56,10 +56,10 @@ export default function CartPage() {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-medium text-gray-900 truncate">
-                {item.meal.name}
+                {item.meal.title}
               </h3>
               <p className="text-sm text-gray-500">
-                ৳{parseFloat(item.meal.price).toFixed(0)} each
+                ৳{item.meal.price.toFixed(0)} each
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -86,7 +86,7 @@ export default function CartPage() {
             <div className="text-right">
               <p className="font-semibold text-gray-900">
                 ৳
-                {(parseFloat(item.meal.price) * item.quantity).toFixed(0)}
+                {(item.meal.price * item.quantity).toFixed(0)}
               </p>
               <button
                 onClick={() => removeItem(item.meal.id)}

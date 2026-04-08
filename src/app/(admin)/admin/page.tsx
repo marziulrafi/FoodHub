@@ -32,6 +32,7 @@ export default function AdminDashboard() {
         {[
           { to: "/admin/users", icon: "👥", label: "Manage Users", desc: "View, suspend, or activate users" },
           { to: "/admin/orders", icon: "📦", label: "All Orders", desc: "Monitor all platform orders" },
+          { to: "/admin/providers", icon: "🏪", label: "Provider Approvals", desc: "Approve or reject provider registrations" },
           { to: "/admin/categories", icon: "🏷️", label: "Categories", desc: "Manage food categories" },
         ].map((item) => (
           <Link key={item.to} href={item.to}>

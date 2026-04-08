@@ -23,7 +23,7 @@ export function OrderCard({ order }: { order: Order }) {
             </p>
             <p className="text-sm text-gray-500 mt-0.5">
               {order.items?.length || 0} item(s) · ৳
-              {parseFloat(order.totalAmount).toFixed(0)}
+              {order.totalAmount.toFixed(0)}
             </p>
             <p className="text-xs text-gray-400 mt-1">
               {formatDate(order.createdAt)}
@@ -38,7 +38,7 @@ export function OrderCard({ order }: { order: Order }) {
                 key={item.id}
                 className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded-lg text-gray-600"
               >
-                {item.meal?.name} ×{item.quantity}
+                  {item.meal?.title ?? item.name} ×{item.quantity}
               </span>
             ))}
             {order.items.length > 3 && (

@@ -14,7 +14,7 @@ export default function CheckoutPage() {
   const placeOrder = usePlaceOrder();
   const router = useRouter();
   const [address, setAddress] = useState("");
-  const [notes, setNotes] = useState("");
+  const [note, setNote] = useState("");
 
   if (items.length === 0) {
     return (
@@ -35,8 +35,8 @@ export default function CheckoutPage() {
     }
     try {
       const order = await placeOrder.mutateAsync({
-        deliveryAddress: address,
-        notes,
+        address,
+        note,
         items: items.map((i) => ({ mealId: i.meal.id, quantity: i.quantity })),
       });
       clearCart();
@@ -69,11 +69,10 @@ export default function CheckoutPage() {
                 className="flex justify-between text-sm text-gray-700"
               >
                 <span>
-                  {item.meal.name} × {item.quantity}
+                  {item.meal.title} × {item.quantity}
                 </span>
                 <span>
-                  ৳
-                  {(parseFloat(item.meal.price) * item.quantity).toFixed(0)}
+                  ৳{(item.meal.price * item.quantity).toFixed(0)}
                 </span>
               </div>
             ))}
@@ -110,8 +109,8 @@ export default function CheckoutPage() {
               type="text"
               className="input"
               placeholder="Special instructions..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
             />
           </div>
 

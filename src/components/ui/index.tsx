@@ -12,6 +12,14 @@ export function Spinner({ className }: { className?: string }) {
   );
 }
 
+export function Skeleton({ className }: { className?: string }) {
+  return (
+    <div
+      className={clsx("animate-pulse rounded-xl bg-gray-200/70", className)}
+    />
+  );
+}
+
 export function LoadingScreen() {
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
@@ -21,6 +29,21 @@ export function LoadingScreen() {
 }
 
 const badgeVariants: Record<string, string> = {
+  // Order statuses
+  PLACED: "bg-blue-100 text-blue-700",
+  PREPARING: "bg-yellow-100 text-yellow-700",
+  READY: "bg-green-100 text-green-700",
+  DELIVERED: "bg-gray-100 text-gray-700",
+  CANCELLED: "bg-red-100 text-red-700",
+  // User statuses
+  ACTIVE: "bg-green-100 text-green-700",
+  SUSPENDED: "bg-red-100 text-red-700",
+  // Roles
+  CUSTOMER: "bg-blue-100 text-blue-700",
+  PROVIDER: "bg-purple-100 text-purple-700",
+  ADMIN: "bg-orange-100 text-orange-700",
+
+  // Backwards-compatible lowercase keys
   placed: "bg-blue-100 text-blue-700",
   preparing: "bg-yellow-100 text-yellow-700",
   ready: "bg-green-100 text-green-700",

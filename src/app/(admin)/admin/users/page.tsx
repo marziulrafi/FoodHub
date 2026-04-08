@@ -10,7 +10,7 @@ export default function AdminUsersPage() {
   const updateStatus = useUpdateUserStatus();
 
   const handleToggle = async (user: User) => {
-    const newStatus = user.status === "active" ? "suspended" : "active";
+    const newStatus = user.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
     try {
       await updateStatus.mutateAsync({ id: user.id, status: newStatus });
       toast.success(`User ${newStatus}`);
@@ -85,12 +85,12 @@ export default function AdminUsersPage() {
                           onClick={() => handleToggle(user)}
                           disabled={updateStatus.isPending}
                           className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${
-                            user.status === "active"
+                            user.status === "ACTIVE"
                               ? "bg-red-100 text-red-700 hover:bg-red-200"
                               : "bg-green-100 text-green-700 hover:bg-green-200"
                           }`}
                         >
-                          {user.status === "active" ? "Suspend" : "Activate"}
+                          {user.status === "ACTIVE" ? "Suspend" : "Activate"}
                         </button>
                       </td>
                     </tr>

@@ -39,8 +39,14 @@ export default function ProfilePage() {
           <div>
             <h2 className="font-bold text-xl text-gray-900">{user.name}</h2>
             <div className="flex gap-2 mt-1">
-              <Badge label={user.role || "customer"} variant={user.role || "customer"} />
-              <Badge label={user.status || "active"} variant={user.status || "active"} />
+              <Badge
+                label={user.role || "CUSTOMER"}
+                variant={user.role || "CUSTOMER"}
+              />
+              <Badge
+                label={user.status || "ACTIVE"}
+                variant={user.status || "ACTIVE"}
+              />
             </div>
           </div>
         </div>

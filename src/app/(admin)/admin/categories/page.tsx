@@ -19,14 +19,13 @@ export default function AdminCategoriesPage() {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !slug) {
+    if (!name) {
       toast.error("Fill all fields");
       return;
     }
     try {
       await addCategory.mutateAsync({
         name,
-        slug: slug.toLowerCase().replace(/\s+/g, "-"),
       });
       toast.success("Category added!");
       setName("");

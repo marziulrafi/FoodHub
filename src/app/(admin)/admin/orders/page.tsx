@@ -20,11 +20,11 @@ export default function AdminOrdersPage() {
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
         {[
           "all",
-          "placed",
-          "preparing",
-          "ready",
-          "delivered",
-          "cancelled",
+          "PLACED",
+          "PREPARING",
+          "READY",
+          "DELIVERED",
+          "CANCELLED",
         ].map((s) => (
           <button
             key={s}
@@ -88,7 +88,7 @@ export default function AdminOrdersPage() {
                       {order.provider?.restaurantName}
                     </td>
                     <td className="px-4 py-3 font-semibold text-gray-900">
-                      ৳{parseFloat(order.totalAmount).toFixed(0)}
+                      ৳{order.totalAmount.toFixed(0)}
                     </td>
                     <td className="px-4 py-3">
                       <Badge label={order.status} variant={order.status as OrderStatus} />

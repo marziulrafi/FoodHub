@@ -52,7 +52,7 @@ export function Navbar() {
 
             {session ? (
               <>
-                {role === "customer" && (
+                {role === "CUSTOMER" && (
                   <>
                     <Link
                       href="/orders"
@@ -73,7 +73,7 @@ export function Navbar() {
                     </Link>
                   </>
                 )}
-                {role === "provider" && (
+                {role === "PROVIDER" && (
                   <Link
                     href="/provider/dashboard"
                     className="flex items-center gap-1 text-gray-600 hover:text-primary-600"
@@ -81,7 +81,7 @@ export function Navbar() {
                     <ChefHat size={18} /> Dashboard
                   </Link>
                 )}
-                {role === "admin" && (
+                {role === "ADMIN" && (
                   <Link
                     href="/admin"
                     className="text-gray-600 hover:text-primary-600"
@@ -145,7 +145,7 @@ export function Navbar() {
           </Link>
           {session ? (
             <>
-              {role === "customer" && (
+              {role === "CUSTOMER" && (
                 <>
                   <Link
                     href="/orders"
@@ -163,7 +163,7 @@ export function Navbar() {
                   </Link>
                 </>
               )}
-              {role === "provider" && (
+              {role === "PROVIDER" && (
                 <Link
                   href="/provider/dashboard"
                   className="block text-gray-700 py-2"
@@ -172,7 +172,7 @@ export function Navbar() {
                   Provider Dashboard
                 </Link>
               )}
-              {role === "admin" && (
+              {role === "ADMIN" && (
                 <Link
                   href="/admin"
                   className="block text-gray-700 py-2"

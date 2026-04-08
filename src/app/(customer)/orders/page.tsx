@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { useOrders } from "@/hooks/useApi";
 import { Spinner, EmptyState } from "@/components/ui";

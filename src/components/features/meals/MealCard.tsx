@@ -18,12 +18,12 @@ export function MealCard({ meal }: { meal: Meal }) {
       toast.error("Please login to add items to cart");
       return;
     }
-    if (role !== "customer") {
+    if (role !== "CUSTOMER") {
       toast.error("Only customers can add to cart");
       return;
     }
     addItem(meal);
-    toast.success(`${meal.name} added to cart!`);
+    toast.success(`${meal.title} added to cart!`);
   };
 
   return (
@@ -34,7 +34,7 @@ export function MealCard({ meal }: { meal: Meal }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={meal.image}
-              alt={meal.name}
+              alt={meal.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
@@ -64,7 +64,7 @@ export function MealCard({ meal }: { meal: Meal }) {
           <div className="flex justify-between items-start">
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900 truncate">
-                {meal.name}
+                {meal.title}
               </h3>
               {meal.provider && (
                 <p className="text-xs text-gray-500 mt-0.5">
@@ -78,7 +78,7 @@ export function MealCard({ meal }: { meal: Meal }) {
               )}
             </div>
             <span className="text-primary-600 font-bold text-lg ml-2">
-              ৳{parseFloat(meal.price).toFixed(0)}
+              ৳{meal.price.toFixed(0)}
             </span>
           </div>
           {meal.description && (
