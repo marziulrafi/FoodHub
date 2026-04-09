@@ -11,6 +11,7 @@ import {
   useCategories,
 } from "@/hooks/useApi";
 import { Spinner, Badge } from "@/components/ui";
+import ImageUploader from "@/components/features/ImageUploader";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 import toast from "react-hot-toast";
 import type { Meal } from "@/types";
@@ -55,6 +56,7 @@ export default function ProviderMenuPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingMeal, setEditingMeal] = useState<Meal | null>(null);
   const [form, setForm] = useState<MealForm>(defaultForm);
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!profileLoading && (!myProfile || profileError)) {
@@ -87,14 +89,30 @@ export default function ProviderMenuPage() {
     setForm({
       title: meal.title,
       description: meal.description || "",
-        price: meal.price.toString(),
+      price: meal.price.toString(),
       categoryId: meal.categoryId || "",
       image: meal.image || "",
       isAvailable: meal.isAvailable,
       isVegetarian: meal.isVegetarian,
       isVegan: meal.isVegan,
     });
+    setImageUploadError(null);
     setShowModal(true);
+  };
+
+  const handleUploadSuccess = (imageData: any) => {
+    setForm((prev) => ({
+      ...prev,
+      image: imageData.optimizedUrl || imageData.secure_url || prev.image,
+    }));
+    setImageUploadError(null);
+  };
+
+  const handleUploadClear = () => {
+    setForm((prev) => ({
+      ...prev,
+      image: "",
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -287,15 +305,28 @@ export default function ProviderMenuPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Image URL
+                  Meal Image
                 </label>
-                <input
-                  className="input"
-                  type="url"
-                  value={form.image}
-                  onChange={field("image")}
-                  placeholder="https://..."
+                <ImageUploader
+                  label="Upload meal photo"
+                  initialImageUrl={form.image || undefined}
+                  onUploadSuccess={handleUploadSuccess}
+                  onUploadError={setImageUploadError}
+                  onClear={handleUploadClear}
+                  className="mb-3"
                 />
+                {form.image ? (
+                  <p className="text-sm text-gray-500 mt-2">
+                    Image will be saved and shown on the meal card.
+                  </p>
+                ) : (
+                  <p className="text-sm text-gray-500 mt-2">
+                    Upload a meal photo to show customers your dish.
+                  </p>
+                )}
+                {imageUploadError && (
+                  <p className="text-sm text-red-600 mt-2">{imageUploadError}</p>
+                )}
               </div>
               <div className="flex flex-wrap gap-4">
                 {(["isAvailable", "isVegetarian", "isVegan"] as const).map(

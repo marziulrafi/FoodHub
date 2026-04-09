@@ -9,7 +9,7 @@ import { Spinner } from "@/components/ui";
 import { ArrowRight, Search, Star, Clock, ShieldCheck, Bike } from "lucide-react";
 
 export default function HomePage() {
-  const { data: meals, isLoading: mealsLoading } = useMeals({ limit: "8" });
+  const { data: meals, isLoading: mealsLoading } = useMeals({ limit: "4" });
   const { data: categories } = useCategories();
   const { data: providers } = useProviders();
   const [search, setSearch] = useState("");
@@ -23,7 +23,6 @@ export default function HomePage() {
   return (
     <div>
       <section className="bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 text-white py-24 px-4 relative overflow-hidden">
-        
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
 
@@ -53,8 +52,7 @@ export default function HomePage() {
               <Search size={18} /> Search
             </button>
           </form>
-
-       
+          
           <div className="flex items-center justify-center gap-8 mt-10 text-sm text-primary-100">
             <div className="text-center">
               <div className="text-2xl font-bold text-white">500+</div>
@@ -160,7 +158,7 @@ export default function HomePage() {
                       <div>
                         <h3 className="font-semibold text-gray-900">{p.restaurantName}</h3>
                         <p className="text-sm text-gray-500">
-                          {p.description?.slice(0, 60) || "Fresh &amp; delicious meals"}
+                          {p.address?.slice(0, 60)}
                         </p>
                         {p.city && (
                           <p className="text-xs text-gray-400 mt-0.5">📍 {p.city}</p>

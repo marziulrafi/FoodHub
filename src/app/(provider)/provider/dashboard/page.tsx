@@ -100,7 +100,7 @@ export default function ProviderDashboard() {
           <StatCard label="Menu Items" value={totalMeals} icon={<UtensilsCrossed />} color="purple" />
         </div>
       )}
-      
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <Link href="/provider/menu" className="card p-4 hover:shadow-md transition-shadow text-center">
           <div className="text-3xl mb-2">🍽️</div>
