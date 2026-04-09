@@ -3,8 +3,8 @@
 FoodHub is a comprehensive food ordering and management platform that connects customers with food providers (restaurants/sellers) through a centralized digital marketplace. The platform enables customers to discover and order meals, providers to manage their menus and orders, and admins to oversee the entire ecosystem.
 
 ## Live Platform
-- Frontend : `https://foodhub-seven-navy.vercel.app`
-- Backend API: `https://foodhub-server-seven.vercel.app`
+🔗 Frontend : [Click here](https://foodhub-seven-navy.vercel.app)
+🔗 Backend API: [Click here](https://foodhub-server-seven.vercel.app)
 
 ## Project Overview
 
