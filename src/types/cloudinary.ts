@@ -4,8 +4,6 @@ export interface ApiResponse<T = any> {
   data: T;
 }
 
-
-
 export interface CloudinarySignature {
   timestamp: number;
   signature: string;
@@ -33,7 +31,6 @@ export interface CloudinaryUploadResponse extends UploadResponse {
   version: number;
 }
 
-
 export interface Image {
   id: string;
   url: string;
@@ -53,6 +50,7 @@ export interface ImageUploadData {
   updatedAt: Date;
 }
 
+
 export interface ImageUploaderProps {
   onUploadSuccess?: (imageData: Image) => void;
   onUploadError?: (error: string) => void;
@@ -68,7 +66,6 @@ export interface FileValidationResult {
 
 export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 export const MAX_FILE_SIZE = 5 * 1024 * 1024;
-
 
 
 export interface ImageTransformOptions {

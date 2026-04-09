@@ -100,14 +100,14 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         className="hidden"
       />
 
+
       {!preview ? (
         <div
           onClick={() => !disabled && !isUploading && fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-            disabled || isUploading
+          className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${disabled || isUploading
               ? 'border-gray-300 bg-gray-50 cursor-not-allowed'
               : 'border-blue-300 hover:border-blue-500 hover:bg-blue-50'
-          }`}
+            }`}
         >
           <Upload className="mx-auto h-10 w-10 text-gray-400 mb-2" />
           <p className="text-sm font-medium text-gray-700">{label}</p>
@@ -118,7 +118,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       ) : (
         <div className="space-y-3">
           <div className="relative">
-           <img
+            <img
               src={preview}
               alt="Preview"
               className="w-full h-48 object-cover rounded-lg"
@@ -132,8 +132,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               </div>
             )}
           </div>
-
-         {isUploading && (
+          
+          {isUploading && (
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
                 className="bg-blue-500 h-2 rounded-full transition-all duration-300"
@@ -161,11 +161,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               <button
                 onClick={handleUpload}
                 disabled={disabled || isUploading || !fileInputRef.current?.files?.length}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                  disabled || isUploading || !fileInputRef.current?.files?.length
+                className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${disabled || isUploading || !fileInputRef.current?.files?.length
                     ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
                     : 'bg-blue-500 text-white hover:bg-blue-600'
-                }`}
+                  }`}
               >
                 {isUploading ? (
                   <div className="flex items-center justify-center gap-2">
@@ -182,11 +181,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               <button
                 onClick={handleClear}
                 disabled={disabled || isUploading}
-                className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                  disabled || isUploading
+                className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${disabled || isUploading
                     ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+                  }`}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -195,11 +193,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={disabled || isUploading}
-              className={`w-full px-4 py-2 text-sm transition-colors ${
-                disabled || isUploading
+              className={`w-full px-4 py-2 text-sm transition-colors ${disabled || isUploading
                   ? 'text-gray-400 cursor-not-allowed'
                   : 'text-blue-500 hover:text-blue-600'
-              }`}
+                }`}
             >
               Choose Different File
             </button>

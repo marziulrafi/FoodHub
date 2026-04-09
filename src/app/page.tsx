@@ -52,7 +52,7 @@ export default function HomePage() {
               <Search size={18} /> Search
             </button>
           </form>
-          
+
           <div className="flex items-center justify-center gap-8 mt-10 text-sm text-primary-100">
             <div className="text-center">
               <div className="text-2xl font-bold text-white">500+</div>
@@ -158,7 +158,7 @@ export default function HomePage() {
                       <div>
                         <h3 className="font-semibold text-gray-900">{p.restaurantName}</h3>
                         <p className="text-sm text-gray-500">
-                          {p.address?.slice(0, 60)}
+                          {p.cuisineTypes?.slice(0, 60)}
                         </p>
                         {p.city && (
                           <p className="text-xs text-gray-400 mt-0.5">📍 {p.city}</p>

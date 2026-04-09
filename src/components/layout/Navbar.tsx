@@ -125,7 +125,6 @@ export function Navbar() {
         </div>
       </div>
 
-
       {menuOpen && (
         <div className="md:hidden border-t border-gray-100 bg-white px-4 py-4 space-y-3">
           <Link

@@ -22,6 +22,7 @@ export const queryKeys = {
   adminPendingProviders: () => ["admin", "providers", "pending"],
 };
 
+
 export function useMeals(filters?: Record<string, string>) {
   return useQuery({
     queryKey: queryKeys.meals(filters),
@@ -96,6 +97,7 @@ export function useDeleteCategory() {
   });
 }
 
+
 export function useOrders() {
   return useQuery({
     queryKey: queryKeys.orders(),
@@ -156,7 +158,11 @@ export function useLeaveReview() {
       api
         .post<{ data: unknown }>("/api/v1/reviews", data)
         .then((r) => r.data.data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.orders() }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.orders() });
+      qc.invalidateQueries({ queryKey: ["provider"] });
+      qc.invalidateQueries({ queryKey: queryKeys.providers() });
+    },
   });
 }
 
@@ -179,6 +185,18 @@ export function useMyProviderProfile() {
       api
         .get<{ data: ProviderProfile | null }>("/api/v1/providers/profile/me")
         .then((r) => r.data.data),
+  });
+}
+
+export function useUpdateProviderProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<ProviderProfile>) =>
+      api
+        .patch<{ data: ProviderProfile }>("/api/v1/providers/profile/me", data)
+        .then((r) => r.data.data),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: queryKeys.providerMe() }),
   });
 }
 
@@ -214,6 +232,7 @@ export function useDeleteMeal() {
       qc.invalidateQueries({ queryKey: queryKeys.providerMeals() }),
   });
 }
+
 
 export function useProviderOrders() {
   return useQuery({

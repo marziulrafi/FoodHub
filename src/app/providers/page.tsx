@@ -60,14 +60,17 @@ export default function ProvidersPage() {
                     {p.restaurantName}
                   </h3>
                   <p className="text-sm text-gray-500">
-                    {p.description?.slice(0, 80) || "Fresh & delicious"}
+                    {p.cuisineTypes?.slice(0, 80) || "Fresh & delicious"}
                   </p>
                   {p.address && (
                     <p className="text-xs text-gray-400 mt-1">{p.address}</p>
                   )}
                 </div>
               </div>
-              <div className="mt-4 flex items-center justify-between">
+              <div className="mt-4 flex items-center justify-between gap-3">
+                <div className="text-xs text-amber-500 font-medium">
+                  ★ {p.rating?.toFixed(1) || "New"}
+                </div>
                 <span
                   className={`text-xs font-medium ${
                     p.isVerified ? "text-green-600" : "text-red-500"

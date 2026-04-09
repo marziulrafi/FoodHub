@@ -31,7 +31,7 @@ export function MealCard({ meal }: { meal: Meal }) {
       <div className="card overflow-hidden hover:shadow-md transition-shadow group">
         <div className="relative h-48 bg-gray-100 overflow-hidden">
           {meal.image ? (
-            <img
+           <img
               src={meal.image}
               alt={meal.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"

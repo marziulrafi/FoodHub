@@ -11,8 +11,7 @@ export interface UploadResponse {
 }
 
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 export const validateImageFile = (file: File): { valid: boolean; error?: string } => {
   if (!file) {
@@ -37,9 +36,7 @@ export const validateImageFile = (file: File): { valid: boolean; error?: string 
 };
 
 export const getUploadSignature = async (): Promise<CloudinarySignature> => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-
-  const response = await fetch(`${apiUrl}/api/cloudinary/signature`, {
+  const response = await fetch(`/api/cloudinary/signature`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -63,7 +60,6 @@ export const getUploadSignature = async (): Promise<CloudinarySignature> => {
 
   return data.data;
 };
-
 
 export const uploadImageToCloudinary = async (
   file: File,
@@ -99,9 +95,7 @@ export const saveImageMetadata = async (
   secure_url: string,
   public_id: string
 ): Promise<any> => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-
-  const response = await fetch(`${apiUrl}/api/images`, {
+  const response = await fetch(`/api/images`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -129,6 +123,7 @@ export const saveImageMetadata = async (
 
   return data.data;
 };
+
 
 export const uploadImage = async (
   file: File,

@@ -32,13 +32,16 @@ export interface ProviderProfile {
   restaurantName: string;
   description?: string;
   address?: string;
+  banner?: string;
   logo?: string;
   city?: string;
   phone?: string;
+  cuisineTypes?: string[];
   status?: ProviderStatus;
   isVerified: boolean;
   rating: number;
   totalOrders?: number;
+  totalReviews?: number;
   user?: Pick<User, "id" | "name" | "email" | "image">;
   meals?: Meal[];
 }

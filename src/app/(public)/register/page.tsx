@@ -306,11 +306,11 @@ export default function RegisterPage() {
                 type="button"
                 onClick={() => {
                   setShowPendingModal(false);
-                  router.push("/");
+                  router.push("/login");
                 }}
                 className="btn-primary w-full py-3"
               >
-                Go to Home
+                Go to Login
               </button>
             </div>
           </div>

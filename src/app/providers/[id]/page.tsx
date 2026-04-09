@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useProvider } from "@/hooks/useApi";
-import { EmptyState, Skeleton } from "@/components/ui";
+import { EmptyState, Skeleton, StarRating } from "@/components/ui";
 import { MealCard } from "@/components/features/meals/MealCard";
 import { use } from "react";
 
@@ -54,7 +54,7 @@ export default function ProviderDetailPage({
               {provider.restaurantName}
             </h1>
             <p className="text-gray-500 mt-1">
-              {provider.description?.slice(0, 200) || "Fresh & delicious"}
+              {provider.cuisineTypes?.slice(0, 80) || "Fresh & delicious"}
             </p>
             <p className="text-sm text-gray-600 mt-2">
               {provider.isVerified ? "Verified restaurant" : "Unverified restaurant"}
@@ -62,8 +62,17 @@ export default function ProviderDetailPage({
           </div>
           <div className="text-right">
             <div className="text-xs text-gray-500">Rating</div>
-            <div className="text-lg font-bold text-gray-900">
-              ★ {provider.rating.toFixed(1)}
+            <div className="flex items-center justify-end gap-2">
+              <StarRating rating={provider.rating} readonly />
+              <span className="text-lg font-bold text-gray-900">
+                {provider.rating.toFixed(1)}
+              </span>
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              {provider.rating > 0
+                ? `${provider.rating.toFixed(1)} average rating`
+                : "No reviews yet"}
+              {provider.totalReviews ? ` · ${provider.totalReviews} reviews` : ""}
             </div>
             <div className="text-xs text-gray-500 mt-1">
               Total meals: {(provider.meals?.length || 0).toString()}
