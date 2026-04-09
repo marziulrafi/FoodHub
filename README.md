@@ -2,9 +2,12 @@
 
 FoodHub is a comprehensive food ordering and management platform that connects customers with food providers (restaurants/sellers) through a centralized digital marketplace. The platform enables customers to discover and order meals, providers to manage their menus and orders, and admins to oversee the entire ecosystem.
 
-## Live Platform
-🔗 Frontend : [Click here](https://foodhub-seven-navy.vercel.app)
-🔗 Backend API: [Click here](https://foodhub-server-seven.vercel.app)
+## Live Links
+🔗 [Frontend](https://foodhub-seven-navy.vercel.app)
+
+🔗 [Backend API](https://foodhub-server-seven.vercel.app)
+
+🔗 [Server Repository](https://github.com/marziulrafi/FoodHub-Server)
 
 ## Project Overview
 
@@ -43,7 +46,7 @@ FoodHub is a comprehensive food ordering and management platform that connects c
 ## Tech Stack Overview
 
 ### Frontend
-- React 18 (UI Library)
+- React 19 (UI Library)
 - Next.js (Full-stack framework)
 - TypeScript
 - Tailwind CSS (Styling)

@@ -28,8 +28,11 @@ export function useMeals(filters?: Record<string, string>) {
     queryKey: queryKeys.meals(filters),
     queryFn: () =>
       api
-        .get<{ data: Meal[] }>("/api/v1/meals", { params: filters })
-        .then((r) => r.data.data),
+        .get<{ data: Meal[]; meta: { total: number; page: number; limit: number; totalPages: number } }>("/api/v1/meals", { params: filters })
+        .then((r) => ({
+          meals: r.data.data,
+          meta: r.data.meta,
+        })),
   });
 }
 
