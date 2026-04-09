@@ -31,7 +31,6 @@ export function MealCard({ meal }: { meal: Meal }) {
       <div className="card overflow-hidden hover:shadow-md transition-shadow group">
         <div className="relative h-48 bg-gray-100 overflow-hidden">
           {meal.image ? (
-            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={meal.image}
               alt={meal.title}

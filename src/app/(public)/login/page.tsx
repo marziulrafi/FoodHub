@@ -93,11 +93,9 @@ export default function LoginPage() {
         </div>
 
         <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700">
-          <strong>Demo accounts:</strong>
+          <strong>Demo credentials:</strong>
           <br />
-          Admin: admin@foodhub.com / Admin@123
-          <br />
-          Provider: provider@foodhub.com / Provider@123
+          Admin: admin@foodhub.com / admin123
         </div>
       </div>
     </div>

@@ -55,7 +55,6 @@ export default function ProviderDashboard() {
         Provider Dashboard
       </h1>
 
-      {/* Approval Status Banner */}
       {!statsLoading && providerStatus && providerStatus !== "APPROVED" && (
         <div className={`rounded-xl p-4 mb-6 flex items-start gap-3 border ${
           providerStatus === "PENDING"
@@ -101,8 +100,7 @@ export default function ProviderDashboard() {
           <StatCard label="Menu Items" value={totalMeals} icon={<UtensilsCrossed />} color="purple" />
         </div>
       )}
-
-      {/* Quick Links */}
+      
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <Link href="/provider/menu" className="card p-4 hover:shadow-md transition-shadow text-center">
           <div className="text-3xl mb-2">🍽️</div>
@@ -121,7 +119,6 @@ export default function ProviderDashboard() {
         </Link>
       </div>
 
-      {/* Active Orders */}
       <div>
         <h2 className="text-xl font-bold text-gray-900 mb-4">Active Orders</h2>
         {ordersLoading ? (

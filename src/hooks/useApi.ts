@@ -22,8 +22,6 @@ export const queryKeys = {
   adminPendingProviders: () => ["admin", "providers", "pending"],
 };
 
-// ─── Meals ────────────────────────────────────────────────────────────────────
-
 export function useMeals(filters?: Record<string, string>) {
   return useQuery({
     queryKey: queryKeys.meals(filters),
@@ -45,7 +43,6 @@ export function useMeal(id: string) {
   });
 }
 
-// ─── Providers ────────────────────────────────────────────────────────────────
 
 export function useProviders() {
   return useQuery({
@@ -67,8 +64,6 @@ export function useProvider(id: string) {
     enabled: !!id,
   });
 }
-
-// ─── Categories ───────────────────────────────────────────────────────────────
 
 export function useCategories() {
   return useQuery({
@@ -100,8 +95,6 @@ export function useDeleteCategory() {
       qc.invalidateQueries({ queryKey: queryKeys.categories() }),
   });
 }
-
-// ─── Orders ───────────────────────────────────────────────────────────────────
 
 export function useOrders() {
   return useQuery({
@@ -167,7 +160,6 @@ export function useLeaveReview() {
   });
 }
 
-// ─── Provider Meals ───────────────────────────────────────────────────────────
 
 export function useProviderMeals(enabled = true) {
   return useQuery({
@@ -223,8 +215,6 @@ export function useDeleteMeal() {
   });
 }
 
-// ─── Provider Orders ──────────────────────────────────────────────────────────
-
 export function useProviderOrders() {
   return useQuery({
     queryKey: queryKeys.providerOrders(),
@@ -248,7 +238,6 @@ export function useUpdateOrderStatus() {
   });
 }
 
-// ─── Provider Stats ───────────────────────────────────────────────────────────
 
 export function useProviderStats() {
   return useQuery({
@@ -259,8 +248,6 @@ export function useProviderStats() {
         .then((r) => r.data.data),
   });
 }
-
-// ─── Admin ────────────────────────────────────────────────────────────────────
 
 export function useAdminStats() {
   return useQuery({

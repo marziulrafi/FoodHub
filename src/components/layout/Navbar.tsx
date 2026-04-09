@@ -35,7 +35,6 @@ export function Navbar() {
             <span>FoodHub</span>
           </Link>
 
-          {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-6">
             <Link
               href="/meals"
@@ -126,7 +125,7 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
+
       {menuOpen && (
         <div className="md:hidden border-t border-gray-100 bg-white px-4 py-4 space-y-3">
           <Link

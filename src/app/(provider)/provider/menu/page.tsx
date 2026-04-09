@@ -171,7 +171,6 @@ export default function ProviderMenuPage() {
             <div key={meal.id} className="card overflow-hidden">
               <div className="h-36 bg-gray-100 flex items-center justify-center text-4xl">
                 {meal.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={meal.image}
                     alt={meal.title}

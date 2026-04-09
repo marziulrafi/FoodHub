@@ -22,9 +22,8 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* ── SECTION 1: Hero ─────────────────────────────────────────────── */}
       <section className="bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 text-white py-24 px-4 relative overflow-hidden">
-        {/* decorative blobs */}
+        
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
 
@@ -55,7 +54,7 @@ export default function HomePage() {
             </button>
           </form>
 
-          {/* Stats Row */}
+       
           <div className="flex items-center justify-center gap-8 mt-10 text-sm text-primary-100">
             <div className="text-center">
               <div className="text-2xl font-bold text-white">500+</div>
@@ -75,7 +74,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 2: Categories ────────────────────────────────────────── */}
       {categories && categories.length > 0 && (
         <section className="py-12 px-4">
           <div className="max-w-7xl mx-auto">
@@ -101,7 +99,6 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* ── SECTION 3: Featured Meals ────────────────────────────────────── */}
       <section className="py-12 px-4 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-6">
@@ -132,7 +129,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 4: Top Providers (Restaurants) ───────────────────────── */}
       {providers && providers.length > 0 && (
         <section className="py-12 px-4">
           <div className="max-w-7xl mx-auto">
@@ -151,7 +147,6 @@ export default function HomePage() {
                   <div className="card p-5 hover:shadow-md transition-all hover:-translate-y-0.5 h-full">
                     <div className="flex items-center gap-3">
                       {p.logo ? (
-                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={p.logo}
                           alt={p.restaurantName}
@@ -187,7 +182,6 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* ── SECTION 5: How It Works ───────────────────────────────────────── */}
       <section className="py-16 px-4 bg-gradient-to-br from-gray-50 to-primary-50">
         <div className="max-w-5xl mx-auto text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">How It Works</h2>
@@ -239,7 +233,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Footer ───────────────────────────────────────────────────────── */}
       <footer className="bg-gray-900 text-gray-300 py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8">
