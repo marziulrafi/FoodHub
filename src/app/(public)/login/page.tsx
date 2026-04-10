@@ -91,12 +91,6 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
-
-        <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700">
-          <strong>Demo credentials:</strong>
-          <br />
-          Admin: admin@foodhub.com / admin123
-        </div>
       </div>
     </div>
   );
