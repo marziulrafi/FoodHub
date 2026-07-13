@@ -48,6 +48,18 @@ export function Navbar() {
             >
               Restaurants
             </Link>
+            <Link
+              href="/about"
+              className="text-gray-600 hover:text-primary-600 transition-colors"
+            >
+              About
+            </Link>
+            <Link
+              href="/contact"
+              className="text-gray-600 hover:text-primary-600 transition-colors"
+            >
+              Contact
+            </Link>
 
             {session ? (
               <>
