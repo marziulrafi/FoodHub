@@ -23,7 +23,7 @@ export default function HomePage() {
 
   return (
     <div>
-      <section className="relative overflow-hidden py-24 px-4 min-h-[600px] flex items-center">
+      <section className="relative overflow-hidden py-20 px-4 sm:py-24 sm:px-6 min-h-[650px] sm:min-h-[600px] flex items-center">
         {/* Background Image */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -36,47 +36,47 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-black/50" />
         
         {/* Decorative Elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute top-0 right-0 sm:w-96 sm:h-96 w-72 h-72 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 sm:w-72 sm:h-72 w-56 h-56 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
 
-        <div className="max-w-4xl mx-auto text-center relative z-10 text-white">
+        <div className="max-w-4xl mx-auto text-center relative z-10 text-white px-2 sm:px-0">
           <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-sm mb-6 backdrop-blur-sm">
             <span>🔥</span>
             <span>Free delivery on your first order</span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 leading-tight sm:leading-tight">
             Discover &amp; Order <br />
             <span className="text-primary-200">Delicious Meals</span>
           </h1>
-          <p className="text-primary-100 text-lg mb-8 max-w-2xl mx-auto">
+          <p className="text-primary-100 text-base sm:text-lg mb-8 max-w-2xl mx-auto">
             Fresh food from the best restaurants in your city — delivered fast to your door
           </p>
-          <form onSubmit={handleSearch} className="flex gap-2 max-w-lg mx-auto">
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search for biryani, pizza, burgers..."
-              className="flex-1 px-4 py-3 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-white/50"
+              className="flex-1 min-w-0 px-4 py-3 rounded-2xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-white/50"
             />
             <button
               type="submit"
-              className="bg-white text-primary-600 font-semibold px-6 py-3 rounded-xl hover:bg-primary-50 transition-colors flex items-center gap-2 whitespace-nowrap"
+              className="w-full sm:w-auto bg-white text-primary-600 font-semibold px-6 py-3 rounded-2xl hover:bg-primary-50 transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
             >
               <Search size={18} /> Search
             </button>
           </form>
 
-          <div className="flex items-center justify-center gap-8 mt-10 text-sm text-primary-100">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-10 text-sm text-primary-100">
             <div className="text-center">
               <div className="text-2xl font-bold text-white">500+</div>
               <div>Meals Available</div>
             </div>
-            <div className="w-px h-8 bg-white/20" />
+            <div className="hidden sm:block w-px h-8 bg-white/20" />
             <div className="text-center">
               <div className="text-2xl font-bold text-white">50+</div>
               <div>Restaurants</div>
             </div>
-            <div className="w-px h-8 bg-white/20" />
+            <div className="hidden sm:block w-px h-8 bg-white/20" />
             <div className="text-center">
               <div className="text-2xl font-bold text-white">10k+</div>
               <div>Happy Customers</div>

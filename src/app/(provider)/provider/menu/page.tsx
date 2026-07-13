@@ -84,6 +84,7 @@ export default function ProviderMenuPage() {
     setForm(defaultForm);
     setShowModal(true);
   };
+
   const openEdit = (meal: Meal) => {
     setEditingMeal(meal);
     setForm({
@@ -138,14 +139,47 @@ export default function ProviderMenuPage() {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Delete "${name}"?`)) return;
-    try {
-      await deleteMeal.mutateAsync(id);
-      toast.success("Meal deleted");
-    } catch {
-      toast.error("Failed to delete");
-    }
+  const handleDelete = (id: string, name: string) => {
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-2">
+          <p className="text-sm font-semibold text-gray-800">Delete "{name}"?</p>
+          <p className="text-xs text-gray-500">This action cannot be undone.</p>
+          <div className="flex gap-2 mt-1">
+            <button
+              onClick={async () => {
+                toast.dismiss(t.id);
+                try {
+                  await deleteMeal.mutateAsync(id);
+                  toast.success(`"${name}" deleted successfully.`);
+                } catch {
+                  toast.error("Failed to delete the meal.");
+                }
+              }}
+              className="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs font-medium py-1.5 px-3 rounded-lg transition-colors"
+            >
+              Yes, Delete
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium py-1.5 px-3 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: Infinity, // stays until user clicks a button
+        position: "top-center",
+        style: {
+          padding: "14px 16px",
+          minWidth: "260px",
+          borderRadius: "12px",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
+        },
+      }
+    );
   };
 
   const field =
