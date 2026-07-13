@@ -262,6 +262,8 @@ export default function HomePage() {
                 <li><Link href="/providers" className="hover:text-white transition-colors">Restaurants</Link></li>
                 <li><Link href="/register" className="hover:text-white transition-colors">Register</Link></li>
                 <li><Link href="/login" className="hover:text-white transition-colors">Login</Link></li>
+                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
+                <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
               </ul>
             </div>
             <div>
@@ -271,6 +273,9 @@ export default function HomePage() {
                 <li><Link href="/provider/dashboard" className="hover:text-white transition-colors">Provider Dashboard</Link></li>
                 <li><Link href="/provider/menu" className="hover:text-white transition-colors">Manage Menu</Link></li>
                 <li><Link href="/provider/orders" className="hover:text-white transition-colors">View Orders</Link></li>
+                <li><Link href="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
+                <li><Link href="/terms" className="hover:text-white transition-colors">Terms</Link></li>
+                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link></li>
               </ul>
             </div>
           </div>
