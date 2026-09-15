@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Modal } from "@/components/ui/Modal";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api } from "@/lib/api";
@@ -8,6 +9,7 @@ import toast from "react-hot-toast";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
   const [form, setForm] = useState({
@@ -26,13 +28,15 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError("");
     if (form.password !== form.confirmPassword) {
+      setFormError("Passwords do not match");
       toast.error("Passwords do not match");
       return;
     }
     setLoading(true);
     try {
-      const payload: any = {
+      const payload: Record<string, string | undefined> = {
         name: form.name,
         email: form.email,
         password: form.password,
@@ -53,13 +57,16 @@ export default function RegisterPage() {
       if (form.role === "provider") {
         setShowPendingModal(true);
         toast.success(
-          "Thank you for registering! Your restaurant is under review by the admin. You can still login and manage your menu while pending."
+          "Thank you for registering! Your restaurant is under review by the admin. You can still login and manage your menu while pending.",
         );
       } else {
         toast.success("Account created! Please login to continue.");
         router.push("/login");
       }
     } catch (err: unknown) {
+      setFormError(
+        err instanceof Error ? err.message : "Unable to submit the form.",
+      );
       toast.error(err instanceof Error ? err.message : "Registration failed");
     } finally {
       setLoading(false);
@@ -72,21 +79,32 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <div className="text-5xl mb-3">🍱</div>
           <h1 className="text-2xl font-bold text-gray-900">Join FoodHub</h1>
-          <p className="text-gray-500 mt-1">Create your account to get started</p>
+          <p className="text-gray-500 mt-1">
+            Create your account to get started
+          </p>
         </div>
 
         <div className="card p-8">
           <form onSubmit={handleSubmit} className="space-y-4">
+            {formError && (
+              <p
+                role="alert"
+                className="rounded-xl bg-red-50 p-3 text-sm text-red-700"
+              >
+                {formError}
+              </p>
+            )}
             <div className="grid grid-cols-2 gap-3">
               {(["customer", "provider"] as const).map((r) => (
                 <button
                   key={r}
                   type="button"
                   onClick={() => setForm((p) => ({ ...p, role: r }))}
-                  className={`py-3 rounded-xl border-2 text-sm font-medium transition-all capitalize ${form.role === r
+                  className={`py-3 rounded-xl border-2 text-sm font-medium transition-all capitalize ${
+                    form.role === r
                       ? "border-primary-500 bg-primary-50 text-primary-700"
                       : "border-gray-200 text-gray-600 hover:border-gray-300"
-                    }`}
+                  }`}
                 >
                   {r === "customer" ? "🛒 Customer" : "🍳 Provider"}
                 </button>
@@ -94,14 +112,18 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="field-1"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Full Name
               </label>
               <input
+                id="field-1"
                 type="text"
                 required
                 className="input"
-                placeholder="John Doe"
+                placeholder="Your full name"
                 value={form.name}
                 onChange={(e) =>
                   setForm((p) => ({ ...p, name: e.target.value }))
@@ -110,14 +132,19 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="field-2"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Email
               </label>
               <input
+                id="field-2"
                 type="email"
+                autoComplete="email"
                 required
                 className="input"
-                placeholder="you@example.com"
+                placeholder="Enter your email"
                 value={form.email}
                 onChange={(e) =>
                   setForm((p) => ({ ...p, email: e.target.value }))
@@ -128,10 +155,14 @@ export default function RegisterPage() {
             {form.role === "provider" && (
               <div className="space-y-4 pt-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="field-3"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Restaurant Name *
                   </label>
                   <input
+                    id="field-3"
                     type="text"
                     required
                     className="input"
@@ -147,10 +178,14 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="field-4"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Restaurant Address *
                   </label>
                   <input
+                    id="field-4"
                     type="text"
                     required
                     className="input"
@@ -166,10 +201,14 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="field-5"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Restaurant Phone *
                   </label>
                   <input
+                    id="field-5"
                     type="tel"
                     required
                     className="input"
@@ -185,10 +224,14 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="field-6"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     City (optional)
                   </label>
                   <input
+                    id="field-6"
                     type="text"
                     className="input"
                     placeholder="Dhaka"
@@ -203,10 +246,14 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="field-7"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Description (optional)
                   </label>
                   <textarea
+                    id="field-7"
                     className="input resize-none"
                     rows={3}
                     placeholder="Fresh, flavorful meals made with care..."
@@ -218,10 +265,14 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="field-8"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Logo URL (optional)
                   </label>
                   <input
+                    id="field-8"
                     type="url"
                     className="input"
                     placeholder="https://example.com/logo.png"
@@ -235,11 +286,16 @@ export default function RegisterPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="field-9"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Password
               </label>
               <input
+                id="field-9"
                 type="password"
+                autoComplete="new-password"
                 required
                 minLength={8}
                 className="input"
@@ -252,11 +308,16 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="field-10"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Confirm Password
               </label>
               <input
+                id="field-10"
                 type="password"
+                autoComplete="new-password"
                 required
                 className="input"
                 placeholder="••••••••"
@@ -289,18 +350,28 @@ export default function RegisterPage() {
       </div>
 
       {showPendingModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <Modal
+          label="Verification pending"
+          onClose={() => {
+            setShowPendingModal(false);
+            router.push("/login");
+          }}
+        >
           <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
             <div className="flex flex-col gap-4">
               <div className="text-center">
                 <div className="text-4xl">⏳</div>
-                <h2 className="text-2xl font-bold mt-3">Verification Pending</h2>
+                <h2 className="text-2xl font-bold mt-3">
+                  Verification Pending
+                </h2>
               </div>
               <p className="text-gray-600">
-                Thank you for registering! Your restaurant is currently under review by the Admin.
+                Thank you for registering! Your restaurant is currently under
+                review by the Admin.
               </p>
               <p className="text-gray-600">
-                You cannot receive orders or add meals until you are approved. Please check back later.
+                Your restaurant will appear in the marketplace after approval.
+                Sign in to view your application status.
               </p>
               <button
                 type="button"
@@ -314,7 +385,7 @@ export default function RegisterPage() {
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );
