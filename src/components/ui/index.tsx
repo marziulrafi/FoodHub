@@ -1,27 +1,7 @@
 import { type ReactNode } from "react";
 import clsx from "clsx";
-
-export function Spinner({ className }: { className?: string }) {
-  return (
-    <div
-      role="status"
-      aria-label="Loading"
-      className={clsx(
-        "animate-spin rounded-full border-4 border-gray-200 border-t-primary-500",
-        className || "h-8 w-8",
-      )}
-    />
-  );
-}
-
-export function Skeleton({ className }: { className?: string }) {
-  return (
-    <div
-      aria-hidden="true"
-      className={clsx("animate-pulse rounded-xl bg-gray-200/70", className)}
-    />
-  );
-}
+import { Skeleton } from "./skeleton";
+export { Skeleton } from "./skeleton";
 
 export function LoadingScreen() {
   return (
@@ -31,8 +11,23 @@ export function LoadingScreen() {
       className="page-container space-y-5 py-12"
     >
       <Skeleton className="h-8 w-48" />
-      <Skeleton className="h-48 w-full" />
-      <Skeleton className="h-24 w-full" />
+      <div className="card space-y-6 p-6 sm:p-8">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-16 w-16 shrink-0 rounded-2xl" />
+          <div className="w-full space-y-3">
+            <Skeleton className="h-5 w-1/2" />
+            <Skeleton className="h-3 w-1/3" />
+          </div>
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="space-y-3">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-11 w-full" />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -90,7 +85,7 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center card px-6 py-16 text-center">
+    <div className="reveal empty-state flex flex-col items-center justify-center card px-6 py-16 text-center">
       {icon && (
         <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-primary-50 text-4xl mb-5">
           {icon}
@@ -156,7 +151,7 @@ export function StatCard({
   };
 
   return (
-    <div className="card stat-card p-4 sm:p-6">
+    <div className="card reveal stat-card p-4 sm:p-6">
       <div className="flex flex-col items-start gap-4 xl:flex-row">
         {icon && (
           <div className={clsx("p-3 rounded-xl text-2xl", colors[color])}>
