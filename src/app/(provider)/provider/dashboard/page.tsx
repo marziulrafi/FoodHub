@@ -1,8 +1,22 @@
 "use client";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { ContentSkeleton } from "@/components/ui/ContentSkeleton";
 
-import { useProviderStats, useProviderOrders, useUpdateOrderStatus } from "@/hooks/useApi";
-import { StatCard, Badge, Spinner } from "@/components/ui";
-import { ShoppingBag, DollarSign, UtensilsCrossed, Activity, Clock, CheckCircle, XCircle } from "lucide-react";
+import {
+  useProviderStats,
+  useProviderOrders,
+  useUpdateOrderStatus,
+} from "@/hooks/useApi";
+import { StatCard, Badge, EmptyState } from "@/components/ui";
+import {
+  ShoppingBag,
+  DollarSign,
+  UtensilsCrossed,
+  Activity,
+  Clock,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import type { Order, OrderStatus } from "@/types";
@@ -19,15 +33,27 @@ const nextLabel: Record<string, string> = {
 };
 
 export default function ProviderDashboard() {
-  const { data: stats, isLoading: statsLoading } = useProviderStats();
-  const { data: orders, isLoading: ordersLoading } = useProviderOrders();
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    error: statsError,
+    refetch: retryStats,
+  } = useProviderStats();
+  const {
+    data: orders,
+    isLoading: ordersLoading,
+    error: ordersError,
+    refetch: retryOrders,
+  } = useProviderOrders();
   const updateStatus = useUpdateOrderStatus();
 
   const activeOrders = orders?.filter(
-    (o) => !["DELIVERED", "CANCELLED"].includes(o.status)
+    (o) => !["DELIVERED", "CANCELLED"].includes(o.status),
   );
 
-  const statsObj = (stats as { stats?: Record<string, unknown>; profile?: Record<string, unknown> } | undefined);
+  const statsObj = stats as
+    | { stats?: Record<string, unknown>; profile?: Record<string, unknown> }
+    | undefined;
   const profile = statsObj?.profile as Record<string, unknown> | undefined;
   const providerStatus = profile?.status as string | undefined;
 
@@ -56,11 +82,13 @@ export default function ProviderDashboard() {
       </h1>
 
       {!statsLoading && providerStatus && providerStatus !== "APPROVED" && (
-        <div className={`rounded-xl p-4 mb-6 flex items-start gap-3 border ${
-          providerStatus === "PENDING"
-            ? "bg-amber-50 border-amber-200 text-amber-800"
-            : "bg-red-50 border-red-200 text-red-800"
-        }`}>
+        <div
+          className={`rounded-xl p-4 mb-6 flex items-start gap-3 border ${
+            providerStatus === "PENDING"
+              ? "bg-amber-50 border-amber-200 text-amber-800"
+              : "bg-red-50 border-red-200 text-red-800"
+          }`}
+        >
           {providerStatus === "PENDING" ? (
             <Clock size={20} className="flex-shrink-0 mt-0.5 text-amber-600" />
           ) : (
@@ -84,35 +112,66 @@ export default function ProviderDashboard() {
       {providerStatus === "APPROVED" && (
         <div className="rounded-xl p-3 mb-6 flex items-center gap-2 bg-green-50 border border-green-200 text-green-800">
           <CheckCircle size={18} className="text-green-600" />
-          <p className="text-sm font-medium">Your restaurant is approved and visible to customers!</p>
+          <p className="text-sm font-medium">
+            Your restaurant is approved and visible to customers!
+          </p>
         </div>
       )}
 
       {statsLoading ? (
-        <div className="flex justify-center py-8">
-          <Spinner />
-        </div>
+        <ContentSkeleton variant="stats" />
+      ) : statsError ? (
+        <ErrorState error={statsError} retry={() => void retryStats()} />
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <StatCard label="Total Orders" value={totalOrders} icon={<ShoppingBag />} color="blue" />
-          <StatCard label="Active Orders" value={activeOrdersCount} icon={<Activity />} color="primary" />
-          <StatCard label="Revenue (৳)" value={parseFloat(totalRevenue.toFixed(0))} icon={<DollarSign />} color="green" />
-          <StatCard label="Menu Items" value={totalMeals} icon={<UtensilsCrossed />} color="purple" />
+          <StatCard
+            label="Total Orders"
+            value={totalOrders}
+            icon={<ShoppingBag />}
+            color="blue"
+          />
+          <StatCard
+            label="Active Orders"
+            value={activeOrdersCount}
+            icon={<Activity />}
+            color="primary"
+          />
+          <StatCard
+            label="Revenue (৳)"
+            value={parseFloat(totalRevenue.toFixed(0))}
+            icon={<DollarSign />}
+            color="green"
+          />
+          <StatCard
+            label="Menu Items"
+            value={totalMeals}
+            icon={<UtensilsCrossed />}
+            color="purple"
+          />
         </div>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <Link href="/provider/menu" className="card p-4 hover:shadow-md transition-shadow text-center">
+        <Link
+          href="/provider/menu"
+          className="card p-4 hover:shadow-md transition-shadow text-center"
+        >
           <div className="text-3xl mb-2">🍽️</div>
           <p className="font-semibold text-gray-900">Manage Menu</p>
           <p className="text-sm text-gray-500">Add, edit, or remove items</p>
         </Link>
-        <Link href="/provider/orders" className="card p-4 hover:shadow-md transition-shadow text-center">
+        <Link
+          href="/provider/orders"
+          className="card p-4 hover:shadow-md transition-shadow text-center"
+        >
           <div className="text-3xl mb-2">📦</div>
           <p className="font-semibold text-gray-900">All Orders</p>
           <p className="text-sm text-gray-500">View and manage orders</p>
         </Link>
-        <Link href="/provider/profile" className="card p-4 hover:shadow-md transition-shadow text-center">
+        <Link
+          href="/provider/profile"
+          className="card p-4 hover:shadow-md transition-shadow text-center"
+        >
           <div className="text-3xl mb-2">🏪</div>
           <p className="font-semibold text-gray-900">Restaurant Profile</p>
           <p className="text-sm text-gray-500">Update your info</p>
@@ -122,13 +181,14 @@ export default function ProviderDashboard() {
       <div>
         <h2 className="text-xl font-bold text-gray-900 mb-4">Active Orders</h2>
         {ordersLoading ? (
-          <div className="flex justify-center py-8">
-            <Spinner />
-          </div>
+          <ContentSkeleton />
+        ) : ordersError ? (
+          <ErrorState error={ordersError} retry={() => void retryOrders()} />
         ) : !activeOrders || activeOrders.length === 0 ? (
-          <div className="card p-8 text-center text-gray-500">
-            No active orders right now
-          </div>
+          <EmptyState
+            title="You’re all caught up"
+            description="New orders will appear here when customers place them."
+          />
         ) : (
           <div className="space-y-4">
             {activeOrders.map((order: Order) => (
@@ -154,7 +214,10 @@ export default function ProviderDashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Badge label={order.status} variant={order.status as OrderStatus} />
+                    <Badge
+                      label={order.status}
+                      variant={order.status as OrderStatus}
+                    />
                     <span className="font-bold text-gray-900">
                       ৳{order.totalAmount.toFixed(0)}
                     </span>

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useSession } from "@/lib/auth-client";
-import { Spinner } from "@/components/ui";
+import { LoadingScreen } from "@/components/ui";
 import type { Role } from "@/types";
 
 export function RequireRole({
@@ -21,25 +21,22 @@ export function RequireRole({
   useEffect(() => {
     if (isPending) return;
     if (!session) {
-      toast.error("Please login to continue.");
+      toast.error("Please login to continue.", { id: "auth-required" });
       router.replace("/login");
       return;
     }
     if (!role || !allowed.includes(role)) {
-      toast.error("You are not allowed to access this page.");
+      toast.error("You are not allowed to access this page.", {
+        id: "role-required",
+      });
       router.replace("/");
     }
   }, [allowed, isPending, role, router, session]);
 
   if (isPending) {
-    return (
-      <div className="flex justify-center py-12">
-        <Spinner />
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (!session || !role || !allowed.includes(role)) return null;
   return <>{children}</>;
 }
-
