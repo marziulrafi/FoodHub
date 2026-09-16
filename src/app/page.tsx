@@ -1,293 +1,303 @@
 "use client";
-
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useMeals, useCategories, useProviders } from "@/hooks/useApi";
+import { RevealSection } from "@/components/ui/RevealSection";
+import { MealCardSkeleton } from "@/components/ui/CollectionSkeleton";
 import { MealCard } from "@/components/features/meals/MealCard";
-import { Spinner } from "@/components/ui";
-import { ArrowRight, Search, Star, Clock, ShieldCheck, Bike } from "lucide-react";
+import { ProviderCard } from "@/components/features/ProviderCard";
+import { EmptyState, Skeleton } from "@/components/ui";
+import { ErrorState } from "@/components/ui/ErrorState";
+import {
+  ArrowRight,
+  Search,
+  ShoppingBag,
+  CookingPot,
+  CheckCheck,
+  UtensilsCrossed,
+} from "lucide-react";
 
 export default function HomePage() {
-  const { data, isLoading: mealsLoading } = useMeals({ limit: "4" });
-  const meals = data?.meals;
-  const { data: categories } = useCategories();
+  const {
+    data,
+    isLoading: mealsLoading,
+    error: mealsError,
+    refetch,
+  } = useMeals({ limit: "4" });
+  const {
+    data: categories,
+    isLoading: categoriesLoading,
+    error: categoriesError,
+    refetch: retryCategories,
+  } = useCategories();
   const { data: providers } = useProviders();
   const [search, setSearch] = useState("");
   const router = useRouter();
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     router.push(`/meals?search=${encodeURIComponent(search)}`);
   };
-
   return (
     <div>
-      <section className="relative overflow-hidden py-20 px-4 sm:py-24 sm:px-6 min-h-[650px] sm:min-h-[600px] flex items-center">
-        {/* Background Image */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('https://plus.unsplash.com/premium_photo-1673108852141-e8c3c22a4a22?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`
-          }}
-        />
-        
-        {/* Dark Overlay for Text Readability */}
-        <div className="absolute inset-0 bg-black/50" />
-        
-        {/* Decorative Elements */}
-        <div className="absolute top-0 right-0 sm:w-96 sm:h-96 w-72 h-72 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 sm:w-72 sm:h-72 w-56 h-56 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
-
-        <div className="max-w-4xl mx-auto text-center relative z-10 text-white px-2 sm:px-0">
-          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-sm mb-6 backdrop-blur-sm">
-            <span>🔥</span>
-            <span>Free delivery on your first order</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 leading-tight sm:leading-tight">
-            Discover &amp; Order <br />
-            <span className="text-primary-200">Delicious Meals</span>
-          </h1>
-          <p className="text-primary-100 text-base sm:text-lg mb-8 max-w-2xl mx-auto">
-            Fresh food from the best restaurants in your city — delivered fast to your door
-          </p>
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search for biryani, pizza, burgers..."
-              className="flex-1 min-w-0 px-4 py-3 rounded-2xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-white/50"
-            />
-            <button
-              type="submit"
-              className="w-full sm:w-auto bg-white text-primary-600 font-semibold px-6 py-3 rounded-2xl hover:bg-primary-50 transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
-            >
-              <Search size={18} /> Search
-            </button>
-          </form>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-10 text-sm text-primary-100">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">500+</div>
-              <div>Meals Available</div>
+      <section className="page-container py-6 sm:py-10">
+        <div className="hero-surface relative isolate overflow-hidden rounded-[2rem] bg-[#eee9df] lg:min-h-[530px]">
+          <div className="grid lg:grid-cols-[1.05fr_1fr]">
+            <div className="reveal relative z-10 px-6 py-10 sm:p-12 lg:py-16">
+              <p className="eyebrow mb-6 flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary-600" /> A
+                little local. A lot delicious.
+              </p>
+              <h1 className="max-w-xl text-[2.8rem] font-extrabold leading-[1.05] tracking-[-0.055em] sm:text-6xl">
+                Good food.
+                <br />
+                Great mood.
+                <br />
+                <span className="text-primary-600">Delivered.</span>
+              </h1>
+              <p className="mt-6 max-w-sm text-base leading-7 text-gray-600">
+                From comfort-food cravings to something new. Discover meals from
+                local kitchens, all in one place.
+              </p>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link href="/meals" className="btn-primary">
+                  Explore meals <ArrowRight size={17} />
+                </Link>
+                <Link
+                  href="/providers"
+                  className="btn-secondary bg-transparent"
+                >
+                  Meet the kitchens
+                </Link>
+              </div>
+              <p className="mt-7 flex items-center gap-2 text-xs font-medium text-gray-600">
+                <ShoppingBag size={15} /> Choose your meal. Pay on delivery.
+              </p>
             </div>
-            <div className="hidden sm:block w-px h-8 bg-white/20" />
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">50+</div>
-              <div>Restaurants</div>
-            </div>
-            <div className="hidden sm:block w-px h-8 bg-white/20" />
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">10k+</div>
-              <div>Happy Customers</div>
+            <div className="hero-photo relative min-h-[280px] sm:min-h-[360px] lg:min-h-full">
+              <Image
+                src="https://plus.unsplash.com/premium_photo-1673108852141-e8c3c22a4a22?w=1200&auto=format&fit=crop&q=85"
+                alt="A spread of freshly prepared food, ready to share"
+                fill
+                priority
+                sizes="(max-width: 1023px) 100vw, 50vw"
+                className="object-cover"
+              />
+              <div className="hero-note absolute bottom-6 left-6 right-6 flex items-center gap-3 rounded-2xl border border-white/60 bg-white/90 p-4 shadow-sm backdrop-blur-md sm:right-auto">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-50 text-primary-700">
+                  <UtensilsCrossed size={22} />
+                </span>
+                <div>
+                  <p className="text-sm font-bold">
+                    Your next favorite is here
+                  </p>
+                  <p className="mt-0.5 text-xs text-gray-600">
+                    Explore the FoodHub menu
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+        <form
+          onSubmit={handleSearch}
+          className="search-surface relative mx-auto mt-5 flex max-w-3xl items-center gap-2 rounded-2xl border border-gray-200 bg-white p-2 shadow-sm sm:gap-3 sm:p-3"
+        >
+          <Search className="ml-2 shrink-0 text-gray-400" size={20} />
+          <label htmlFor="home-search" className="sr-only">
+            Find a meal
+          </label>
+          <input
+            id="home-search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="What are you craving?"
+            className="min-w-0 flex-1 bg-transparent px-1 py-3 text-sm outline-none"
+          />
+          <button className="btn-primary" type="submit">
+            Find food
+          </button>
+        </form>
       </section>
-
-      {categories && categories.length > 0 && (
-        <section className="py-12 px-4">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Browse by Category</h2>
-              <Link href="/meals" className="text-primary-600 hover:underline flex items-center gap-1 text-sm">
-                All meals <ArrowRight size={16} />
-              </Link>
-            </div>
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-              {categories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/meals?category=${cat.id}`}
-                  className="flex-shrink-0 bg-white border border-gray-200 hover:border-primary-400 hover:bg-primary-50 rounded-xl px-5 py-3 text-sm font-medium text-gray-700 transition-all shadow-sm hover:shadow-md"
-                >
-                  {cat.image && <span className="mr-1">{cat.image}</span>}
-                  {cat.name}
-                </Link>
-              ))}
-            </div>
+      <RevealSection className="page-container py-8 sm:py-10">
+        <div className="mb-6 flex items-end justify-between gap-4">
+          <div>
+            <p className="eyebrow mb-2">Follow your cravings</p>
+            <h2 className="section-title">What sounds good?</h2>
           </div>
-        </section>
-      )}
-
-      <section className="py-12 px-4 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-6">
+          <Link
+            href="/meals"
+            className="shrink-0 text-sm font-semibold text-primary-700"
+          >
+            All meals →
+          </Link>
+        </div>
+        {categoriesLoading ? (
+          <div className="flex gap-3">
+            {[0, 1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-20 flex-1" />
+            ))}
+          </div>
+        ) : categoriesError ? (
+          <ErrorState
+            error={categoriesError}
+            retry={() => void retryCategories()}
+          />
+        ) : categories?.length ? (
+          <div className="flex gap-3 overflow-x-auto pb-3">
+            {categories.map((cat) => (
+              <Link
+                key={cat.id}
+                href={`/meals?category=${cat.id}`}
+                className="category-card reveal group flex min-w-40 shrink-0 items-center gap-3 rounded-2xl border border-gray-200 bg-white px-5 py-5 transition duration-200 hover:border-primary-300 hover:bg-primary-50"
+              >
+                {cat.image && /^https?:\/\//.test(cat.image) ? (
+                  <img
+                    src={cat.image}
+                    alt=""
+                    loading="lazy"
+                    width={36}
+                    height={36}
+                    className="h-9 w-9 rounded-lg object-cover"
+                  />
+                ) : (
+                  <UtensilsCrossed size={22} className="text-primary-600" />
+                )}
+                <span className="text-sm font-semibold">{cat.name}</span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="rounded-2xl border border-dashed border-gray-300 p-6 text-sm text-gray-500">
+            Our kitchens are getting their menus ready. Explore all meals to see
+            what’s available.
+          </p>
+        )}
+      </RevealSection>
+      <RevealSection className="page-container py-8 sm:py-12">
+        <div className="mb-7 flex items-end justify-between gap-4">
+          <div>
+            <p className="eyebrow mb-2">On the menu</p>
+            <h2 className="section-title">A delicious place to start</h2>
+            <p className="mt-2 text-sm text-gray-500">
+              Explore dishes from the FoodHub kitchen community.
+            </p>
+          </div>
+          <Link
+            href="/meals"
+            className="shrink-0 text-sm font-semibold text-primary-700"
+          >
+            View all →
+          </Link>
+        </div>
+        {mealsLoading ? (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {[0, 1, 2, 3].map((i) => (
+              <MealCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : mealsError ? (
+          <ErrorState error={mealsError} retry={() => void refetch()} />
+        ) : data?.meals?.length ? (
+          <div className="meal-grid grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {data.meals.map((meal) => (
+              <MealCard key={meal.id} meal={meal} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon={<UtensilsCrossed />}
+            title="The menu is on its way"
+            description="Check back soon to discover meals from our providers."
+          />
+        )}
+      </RevealSection>
+      {providers && providers.length > 0 && (
+        <RevealSection className="page-container py-8 sm:py-12">
+          <div className="mb-7 flex items-end justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Featured Meals</h2>
-              <p className="text-gray-500 text-sm mt-1">Handpicked favorites from our top restaurants</p>
+              <p className="eyebrow mb-2">Behind every good meal</p>
+              <h2 className="section-title">Meet your local kitchens</h2>
             </div>
-            <Link href="/meals" className="text-primary-600 hover:underline flex items-center gap-1 text-sm">
-              See all <ArrowRight size={16} />
+            <Link
+              href="/providers"
+              className="shrink-0 text-sm font-semibold text-primary-700"
+            >
+              View all →
             </Link>
           </div>
-          {mealsLoading ? (
-            <div className="flex justify-center py-12">
-              <Spinner />
-            </div>
-          ) : meals && meals.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {meals.map((meal) => (
-                <MealCard key={meal.id} meal={meal} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16 text-gray-400">
-              <div className="text-5xl mb-3">🍽️</div>
-              <p>No meals available yet. Check back soon!</p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {providers && providers.length > 0 && (
-        <section className="py-12 px-4">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Top Restaurants</h2>
-                <p className="text-gray-500 text-sm mt-1">Approved and trusted by our community</p>
-              </div>
-              <Link href="/providers" className="text-primary-600 hover:underline flex items-center gap-1 text-sm">
-                View all <ArrowRight size={16} />
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {providers.slice(0, 3).map((p) => (
-                <Link key={p.id} href={`/providers/${p.id}`}>
-                  <div className="card p-5 hover:shadow-md transition-all hover:-translate-y-0.5 h-full">
-                    <div className="flex items-center gap-3">
-                      {p.logo ? (
-                        <img
-                          src={p.logo}
-                          alt={p.restaurantName}
-                          className="w-14 h-14 rounded-full object-cover border-2 border-gray-100"
-                        />
-                      ) : (
-                        <div className="w-14 h-14 bg-primary-100 rounded-full flex items-center justify-center text-3xl flex-shrink-0">
-                          🍽️
-                        </div>
-                      )}
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{p.restaurantName}</h3>
-                        <p className="text-sm text-gray-500">
-                          {p.cuisineTypes?.slice(0, 60)}
-                        </p>
-                        {p.city && (
-                          <p className="text-xs text-gray-400 mt-0.5">📍 {p.city}</p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="mt-3 flex items-center justify-between">
-                      <div className="flex items-center gap-1 text-amber-500 text-sm">
-                        <Star size={14} fill="currentColor" />
-                        <span className="font-medium">{p.rating?.toFixed(1) || "New"}</span>
-                      </div>
-                      <span className="text-xs text-primary-600 font-medium">View Menu →</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {providers.slice(0, 3).map((p) => (
+              <ProviderCard key={p.id} provider={p} />
+            ))}
           </div>
-        </section>
+        </RevealSection>
       )}
-
-      <section className="py-16 px-4 bg-gradient-to-br from-gray-50 to-primary-50">
-        <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">How It Works</h2>
-          <p className="text-gray-500 mb-12">Order your favorite food in 3 simple steps</p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+      <RevealSection className="my-8 border-y border-gray-200 bg-white py-14 sm:py-20">
+        <div className="page-container">
+          <div className="mb-10 text-center">
+            <p className="eyebrow mb-3">Less effort. More enjoyment.</p>
+            <h2 className="section-title">From our kitchens to your table</h2>
+          </div>
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
-                icon: <Search size={32} className="text-primary-500" />,
-                step: "01",
-                title: "Browse & Choose",
-                desc: "Explore hundreds of meals from verified restaurants. Filter by category, price, or cuisine.",
+                icon: Search,
+                title: "Discover",
+                desc: "Browse local menus and find a meal that hits the spot.",
               },
               {
-                icon: <ShieldCheck size={32} className="text-primary-500" />,
-                step: "02",
-                title: "Place Your Order",
-                desc: "Add items to your cart and checkout securely. Cash on delivery — no hidden fees.",
+                icon: ShoppingBag,
+                title: "Order",
+                desc: "Choose your dishes, add your address, and pay on delivery.",
               },
               {
-                icon: <Bike size={32} className="text-primary-500" />,
-                step: "03",
-                title: "Fast Delivery",
-                desc: "Track your order in real time. Fresh food delivered hot to your doorstep.",
+                icon: CookingPot,
+                title: "Track",
+                desc: "Follow your order from placed to preparing, ready, and delivered.",
               },
-            ].map((item) => (
-              <div key={item.step} className="flex flex-col items-center gap-4">
-                <div className="relative">
-                  <div className="w-20 h-20 bg-white rounded-2xl shadow-md flex items-center justify-center">
-                    {item.icon}
-                  </div>
-                  <div className="absolute -top-2 -right-2 w-7 h-7 bg-primary-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                    {item.step}
-                  </div>
+              {
+                icon: CheckCheck,
+                title: "Enjoy",
+                desc: "Make time for a good meal. Share your experience with a review.",
+              },
+            ].map(({ icon: Icon, title, desc }, i) => (
+              <div key={title} className="relative">
+                <div className="mb-5 flex items-center justify-between">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-700">
+                    <Icon size={24} />
+                  </span>
+                  <span className="text-3xl font-light text-gray-200">
+                    0{i + 1}
+                  </span>
                 </div>
-                <h3 className="font-semibold text-gray-900 text-lg">{item.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
+                <h3 className="text-lg font-bold">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-gray-500">{desc}</p>
               </div>
             ))}
           </div>
-
-          <div className="mt-12 flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/meals" className="btn-primary px-8 py-3">
-              Order Now
-            </Link>
-            <Link href="/register" className="btn-secondary px-8 py-3">
-              Become a Provider
-            </Link>
-          </div>
         </div>
-      </section>
-
-      <footer className="bg-gray-900 text-gray-300 py-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-2 text-white font-bold text-xl mb-3">
-                <span>🍱</span> FoodHub
-              </div>
-              <p className="text-sm text-gray-400 leading-relaxed">
-                Connecting hungry customers with the best local restaurants. Fresh food, fast delivery.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-3">Quick Links</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/meals" className="hover:text-white transition-colors">Browse Meals</Link></li>
-                <li><Link href="/providers" className="hover:text-white transition-colors">Restaurants</Link></li>
-                <li><Link href="/register" className="hover:text-white transition-colors">Register</Link></li>
-                <li><Link href="/login" className="hover:text-white transition-colors">Login</Link></li>
-                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
-                <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-3">For Providers</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/register" className="hover:text-white transition-colors">Register Restaurant</Link></li>
-                <li><Link href="/provider/dashboard" className="hover:text-white transition-colors">Provider Dashboard</Link></li>
-                <li><Link href="/provider/menu" className="hover:text-white transition-colors">Manage Menu</Link></li>
-                <li><Link href="/provider/orders" className="hover:text-white transition-colors">View Orders</Link></li>
-                <li><Link href="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
-                <li><Link href="/terms" className="hover:text-white transition-colors">Terms</Link></li>
-                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link></li>
-              </ul>
-            </div>
+      </RevealSection>
+      <RevealSection className="page-container py-8 pb-16">
+        <div className="flex flex-col items-start justify-between gap-6 rounded-3xl bg-[#283d31] p-8 sm:p-12 lg:flex-row lg:items-center">
+          <div>
+            <p className="mb-3 text-xs font-bold uppercase tracking-widest text-[#d7e5cb]">
+              For the love of good food
+            </p>
+            <h2 className="text-2xl font-bold text-white sm:text-3xl">
+              Your kitchen. A new community.
+            </h2>
+            <p className="mt-3 max-w-lg text-sm leading-6 text-white/75">
+              Share what you do best. Register your restaurant and start your
+              FoodHub journey.
+            </p>
           </div>
-          <div className="border-t border-gray-800 pt-6 text-center text-sm text-gray-500">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <Clock size={14} />
-              <span>Mon – Sun: 8:00 AM – 11:00 PM</span>
-            </div>
-            <p>© {new Date().getFullYear()} FoodHub. All rights reserved.</p>
-          </div>
+          <Link href="/register" className="btn-secondary shrink-0">
+            Become a provider <ArrowRight size={17} />
+          </Link>
         </div>
-      </footer>
+      </RevealSection>
     </div>
   );
 }

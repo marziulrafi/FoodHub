@@ -1,4 +1,6 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { PasswordInput } from "@/components/ui/password-input";
 
 import Link from "next/link";
 import { Modal } from "@/components/ui/Modal";
@@ -292,9 +294,8 @@ export default function RegisterPage() {
               >
                 Password
               </label>
-              <input
+              <PasswordInput
                 id="field-9"
-                type="password"
                 autoComplete="new-password"
                 required
                 minLength={8}
@@ -314,9 +315,8 @@ export default function RegisterPage() {
               >
                 Confirm Password
               </label>
-              <input
+              <PasswordInput
                 id="field-10"
-                type="password"
                 autoComplete="new-password"
                 required
                 className="input"
@@ -328,13 +328,13 @@ export default function RegisterPage() {
               />
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
               className="btn-primary w-full py-2.5"
             >
               {loading ? "Creating account..." : "Create Account"}
-            </button>
+            </Button>
           </form>
 
           <p className="text-center text-sm text-gray-500 mt-4">

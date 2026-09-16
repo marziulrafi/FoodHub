@@ -1,4 +1,6 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { PasswordInput } from "@/components/ui/password-input";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -82,9 +84,8 @@ export default function LoginPage() {
               >
                 Password
               </label>
-              <input
+              <PasswordInput
                 id="field-2"
-                type="password"
                 autoComplete="current-password"
                 required
                 className="input"
@@ -95,13 +96,13 @@ export default function LoginPage() {
                 }
               />
             </div>
-            <button
+            <Button
               type="submit"
               disabled={loading}
               className="btn-primary w-full py-2.5"
             >
               {loading ? "Signing in..." : "Sign In"}
-            </button>
+            </Button>
           </form>
 
           <p className="text-center text-sm text-gray-500 mt-4">
