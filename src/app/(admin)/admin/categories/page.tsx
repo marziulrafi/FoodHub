@@ -1,4 +1,7 @@
 "use client";
+import { confirmAction } from "@/lib/confirm";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { ContentSkeleton } from "@/components/ui/ContentSkeleton";
 
 import { useState } from "react";
 import {
@@ -6,16 +9,15 @@ import {
   useAddCategory,
   useDeleteCategory,
 } from "@/hooks/useApi";
-import { Spinner } from "@/components/ui";
+
 import { Plus, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function AdminCategoriesPage() {
-  const { data: categories, isLoading } = useCategories();
+  const { data: categories, isLoading, error, refetch } = useCategories();
   const addCategory = useAddCategory();
   const deleteCategory = useDeleteCategory();
   const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,14 +31,20 @@ export default function AdminCategoriesPage() {
       });
       toast.success("Category added!");
       setName("");
-      setSlug("");
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed");
     }
   };
 
   const handleDelete = async (id: string, catName: string) => {
-    if (!confirm(`Delete "${catName}"?`)) return;
+    if (
+      !(await confirmAction(
+        "Delete category?",
+        `Remove “${catName}” from the category list?`,
+        "Delete category",
+      ))
+    )
+      return;
     try {
       await deleteCategory.mutateAsync(id);
       toast.success("Category deleted");
@@ -51,21 +59,15 @@ export default function AdminCategoriesPage() {
 
       <div className="card p-5 mb-6">
         <h2 className="font-semibold text-gray-900 mb-3">Add Category</h2>
-        <form onSubmit={handleAdd} className="flex gap-2">
+        <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-3">
           <input
+            aria-label="Category name"
             className="input flex-1"
             placeholder="Category name"
             value={name}
             onChange={(e) => {
               setName(e.target.value);
-              setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-"));
             }}
-          />
-          <input
-            className="input flex-1"
-            placeholder="Slug"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
           />
           <button
             type="submit"
@@ -78,9 +80,9 @@ export default function AdminCategoriesPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-8">
-          <Spinner />
-        </div>
+        <ContentSkeleton variant="table" />
+      ) : error ? (
+        <ErrorState error={error} retry={() => void refetch()} />
       ) : (
         <div className="card divide-y divide-gray-50">
           {categories?.map((cat) => (
@@ -93,6 +95,8 @@ export default function AdminCategoriesPage() {
                 <p className="text-xs text-gray-400">/{cat.slug}</p>
               </div>
               <button
+                aria-label={`Delete ${cat.name}`}
+                disabled={deleteCategory.isPending}
                 onClick={() => handleDelete(cat.id, cat.name)}
                 className="text-red-400 hover:text-red-600 p-1"
               >
