@@ -14,9 +14,9 @@ function formatDate(dateStr: string) {
 
 export function OrderCard({ order }: { order: Order }) {
   return (
-    <Link href={`/orders/${order.id}`}>
-      <div className="card p-4 hover:shadow-md transition-shadow">
-        <div className="flex justify-between items-start">
+    <Link href={`/orders/${order.id}`} className="block">
+      <div className="card p-5 hover:shadow-md hover:border-primary-200 transition duration-200">
+        <div className="flex flex-wrap gap-3 justify-between items-start">
           <div>
             <p className="font-semibold text-gray-900">
               {order.provider?.restaurantName || "Restaurant"}
@@ -38,7 +38,7 @@ export function OrderCard({ order }: { order: Order }) {
                 key={item.id}
                 className="text-xs bg-gray-50 border border-gray-100 px-2 py-1 rounded-lg text-gray-600"
               >
-                  {item.meal?.title ?? item.name} ×{item.quantity}
+                {item.meal?.title ?? item.name} ×{item.quantity}
               </span>
             ))}
             {order.items.length > 3 && (
