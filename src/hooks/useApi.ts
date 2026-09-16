@@ -16,8 +16,8 @@ export const queryKeys = {
   providerMeals: () => ["provider", "meals"],
   providerOrders: () => ["provider", "orders"],
   providerStats: () => ["provider", "stats"],
-  adminUsers: () => ["admin", "users"],
-  adminOrders: () => ["admin", "orders"],
+  adminUsers: (filters?: AdminUserFilters) => filters ? ["admin", "users", filters] : ["admin", "users"],
+  adminOrders: (filters?: AdminOrderFilters) => filters ? ["admin", "orders", filters] : ["admin", "orders"],
   adminStats: () => ["admin", "stats"],
   adminPendingProviders: () => ["admin", "providers", "pending"],
 };
@@ -281,13 +281,21 @@ export function useAdminStats() {
   });
 }
 
-export function useAdminUsers() {
+export interface AdminUserFilters {
+  page: number;
+  limit: number;
+  search?: string;
+  role?: string;
+  status?: string;
+}
+
+export function useAdminUsers(filters: AdminUserFilters) {
   return useQuery({
-    queryKey: queryKeys.adminUsers(),
+    queryKey: queryKeys.adminUsers(filters),
     queryFn: () =>
       api
-        .get<{ data: User[] }>("/api/v1/admin/users")
-        .then((r) => r.data.data),
+        .get<{ data: User[]; meta: { total: number; page: number; limit: number; totalPages: number } }>("/api/v1/admin/users", { params: filters })
+        .then((r) => ({ users: r.data.data, meta: r.data.meta })),
   });
 }
 
@@ -303,13 +311,19 @@ export function useUpdateUserStatus() {
   });
 }
 
-export function useAdminOrders() {
+export interface AdminOrderFilters {
+  page: number;
+  limit: number;
+  status?: string;
+}
+
+export function useAdminOrders(filters: AdminOrderFilters) {
   return useQuery({
-    queryKey: queryKeys.adminOrders(),
+    queryKey: queryKeys.adminOrders(filters),
     queryFn: () =>
       api
-        .get<{ data: Order[] }>("/api/v1/admin/orders")
-        .then((r) => r.data.data),
+        .get<{ data: Order[]; meta: { total: number; page: number; limit: number; totalPages: number } }>("/api/v1/admin/orders", { params: filters })
+        .then((r) => ({ orders: r.data.data, meta: r.data.meta })),
   });
 }
 

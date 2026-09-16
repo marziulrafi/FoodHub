@@ -1,3 +1,9 @@
+export interface UploadedImage {
+  url?: string;
+  secure_url?: string;
+  optimizedUrl?: string;
+  [key: string]: unknown;
+}
 export interface CloudinarySignature {
   timestamp: number;
   signature: string;
@@ -10,18 +16,20 @@ export interface UploadResponse {
   public_id: string;
 }
 
-const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-export const validateImageFile = (file: File): { valid: boolean; error?: string } => {
+export const validateImageFile = (
+  file: File,
+): { valid: boolean; error?: string } => {
   if (!file) {
-    return { valid: false, error: 'No file selected' };
+    return { valid: false, error: "No file selected" };
   }
 
   if (!ALLOWED_FILE_TYPES.includes(file.type)) {
     return {
       valid: false,
-      error: 'Invalid file type. Allowed types: JPEG, PNG, WebP',
+      error: "Invalid file type. Allowed types: JPEG, PNG, WebP",
     };
   }
 
@@ -37,25 +45,25 @@ export const validateImageFile = (file: File): { valid: boolean; error?: string 
 
 export const getUploadSignature = async (): Promise<CloudinarySignature> => {
   const response = await fetch(`/api/cloudinary/signature`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    credentials: 'include',
+    credentials: "include",
   });
 
   if (!response.ok) {
-    throw new Error('Failed to get upload signature from server');
+    throw new Error("Failed to get upload signature from server");
   }
 
   const data = await response.json();
 
   if (!data.success) {
-    throw new Error(data.message || 'Failed to generate signature');
+    throw new Error(data.message || "Failed to generate signature");
   }
 
   if (!data.data) {
-    throw new Error('Invalid signature response from server');
+    throw new Error("Invalid signature response from server");
   }
 
   return data.data;
@@ -63,24 +71,24 @@ export const getUploadSignature = async (): Promise<CloudinarySignature> => {
 
 export const uploadImageToCloudinary = async (
   file: File,
-  signature: CloudinarySignature
+  signature: CloudinarySignature,
 ): Promise<UploadResponse> => {
   const formData = new FormData();
-  formData.append('file', file);
-  formData.append('signature', signature.signature);
-  formData.append('timestamp', signature.timestamp.toString());
-  formData.append('api_key', signature.apiKey);
-  formData.append('upload_preset', 'foodhub_unsigned');
+  formData.append("file", file);
+  formData.append("signature", signature.signature);
+  formData.append("timestamp", signature.timestamp.toString());
+  formData.append("api_key", signature.apiKey);
+  formData.append("upload_preset", "foodhub_unsigned");
 
   const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${signature.cloudName}/image/upload`;
 
   const response = await fetch(cloudinaryUrl, {
-    method: 'POST',
+    method: "POST",
     body: formData,
   });
 
   if (!response.ok) {
-    throw new Error('Failed to upload image to Cloudinary');
+    throw new Error("Failed to upload image to Cloudinary");
   }
 
   const uploadedData = await response.json();
@@ -93,14 +101,14 @@ export const uploadImageToCloudinary = async (
 
 export const saveImageMetadata = async (
   secure_url: string,
-  public_id: string
-): Promise<any> => {
+  public_id: string,
+): Promise<UploadedImage> => {
   const response = await fetch(`/api/images`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    credentials: 'include',
+    credentials: "include",
     body: JSON.stringify({
       secure_url,
       public_id,
@@ -108,27 +116,26 @@ export const saveImageMetadata = async (
   });
 
   if (!response.ok) {
-    throw new Error('Failed to save image metadata');
+    throw new Error("Failed to save image metadata");
   }
 
   const data = await response.json();
 
   if (!data.success) {
-    throw new Error(data.message || 'Failed to save image');
+    throw new Error(data.message || "Failed to save image");
   }
 
   if (!data.data) {
-    throw new Error('Invalid save-image response from server');
+    throw new Error("Invalid save-image response from server");
   }
 
   return data.data;
 };
 
-
 export const uploadImage = async (
   file: File,
-  onProgress?: (progress: number) => void
-): Promise<any> => {
+  onProgress?: (progress: number) => void,
+): Promise<UploadedImage> => {
   const validation = validateImageFile(file);
   if (!validation.valid) {
     throw new Error(validation.error);
@@ -144,13 +151,13 @@ export const uploadImage = async (
 
     const savedImage = await saveImageMetadata(
       uploadResponse.secure_url,
-      uploadResponse.public_id
+      uploadResponse.public_id,
     );
     onProgress?.(90);
 
     const optimizedUrl = uploadResponse.secure_url
-      .replace('/upload/', '/upload/f_auto,q_auto/')
-      .replace('http://', 'https://');
+      .replace("/upload/", "/upload/f_auto,q_auto/")
+      .replace("http://", "https://");
 
     onProgress?.(100);
 
@@ -159,7 +166,7 @@ export const uploadImage = async (
       optimizedUrl,
     };
   } catch (error) {
-    console.error('Upload error:', error);
+    console.error("Upload error:", error);
     throw error;
   }
 };

@@ -70,7 +70,7 @@ export interface OrderItem {
   quantity: number;
   price: number;
   name: string;
-  meal?: Pick<Meal, "id" | "title" | "image">;
+  meal?: Pick<Meal, "id" | "title" | "image" | "provider">;
 }
 
 export interface Order {

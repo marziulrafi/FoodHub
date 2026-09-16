@@ -1,4 +1,4 @@
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   statusCode: number;
   message: string;
   data: T;
@@ -50,7 +50,6 @@ export interface ImageUploadData {
   updatedAt: Date;
 }
 
-
 export interface ImageUploaderProps {
   onUploadSuccess?: (imageData: Image) => void;
   onUploadError?: (error: string) => void;
@@ -64,19 +63,17 @@ export interface FileValidationResult {
   error?: string;
 }
 
-export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const MAX_FILE_SIZE = 5 * 1024 * 1024;
-
 
 export interface ImageTransformOptions {
   width?: number;
   height?: number;
-  crop?: 'fill' | 'fit' | 'thumb' | 'crop';
+  crop?: "fill" | "fit" | "thumb" | "crop";
   radius?: number;
-  quality?: 'auto' | 'best' | 'good' | 'eco' | 'low';
-  format?: 'auto' | 'jpg' | 'png' | 'webp' | 'avif';
+  quality?: "auto" | "best" | "good" | "eco" | "low";
+  format?: "auto" | "jpg" | "png" | "webp" | "avif";
 }
-
 
 export interface UserWithImages {
   id: string;
