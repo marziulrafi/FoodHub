@@ -1,223 +1,251 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ShoppingCart, User, LogOut, Menu, X, ChefHat } from "lucide-react";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  ShoppingCart,
+  LogOut,
+  Menu,
+  X,
+  UtensilsCrossed,
+  ChevronDown,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { useSession, signOut } from "@/lib/auth-client";
 import { useCartStore } from "@/stores/cart.store";
 import toast from "react-hot-toast";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 export function Navbar() {
-  const { data: session } = useSession();
+  const { data: session, isPending } = useSession();
   const cartCount = useCartStore((s) => s.count());
   const router = useRouter();
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  useEffect(() => {
+    setMenuOpen(false);
+    setProfileOpen(false);
+  }, [pathname]);
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const closeOnDesktop = () => {
+      if (desktop.matches) setMenuOpen(false);
+    };
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
+  }, []);
   const handleSignOut = async () => {
     await signOut();
     toast.success("Signed out");
+    setProfileOpen(false);
+    setMenuOpen(false);
     router.push("/");
     router.refresh();
   };
-
   const role = (session?.user as { role?: string })?.role;
-
+  const accountHref =
+    role === "PROVIDER"
+      ? "/provider/profile"
+      : role === "ADMIN"
+        ? "/admin"
+        : "/profile";
+  const links = [
+    { href: "/meals", label: "Browse meals" },
+    { href: "/providers", label: "Restaurants" },
+    { href: "/about", label: "Our story" },
+  ];
+  if (role === "CUSTOMER") links.push({ href: "/orders", label: "My orders" });
+  if (role === "PROVIDER")
+    links.push({ href: "/provider/dashboard", label: "Dashboard" });
+  if (role === "ADMIN") links.push({ href: "/admin", label: "Admin panel" });
+  const navLinks = links.map(({ href, label }) => (
+    <Link
+      key={href}
+      href={href}
+      className="nav-link"
+      aria-current={
+        pathname === href ||
+        (href !== "/admin" && pathname.startsWith(href + "/"))
+          ? "page"
+          : undefined
+      }
+      onClick={() => setMenuOpen(false)}
+    >
+      {label}
+    </Link>
+  ));
   return (
-    <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <header className="sticky top-0 z-40 border-b border-gray-200/70 bg-white/95 backdrop-blur-xl">
+      <nav aria-label="Main navigation" className="page-container">
+        <div className="flex h-20 items-center justify-between gap-4">
           <Link
             href="/"
-            className="flex items-center gap-2 font-bold text-xl text-primary-600"
+            aria-label="FoodHub home"
+            className="flex items-center gap-2.5 text-xl font-extrabold tracking-tight"
           >
-            <span className="text-2xl">🍱</span>
-            <span>FoodHub</span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600 text-white">
+              <UtensilsCrossed size={21} />
+            </span>
+            Food<span className="-ml-2.5 text-primary-600">Hub</span>
           </Link>
-
-          <div className="hidden md:flex items-center gap-6">
-            <Link
-              href="/meals"
-              className="text-gray-600 hover:text-primary-600 transition-colors"
-            >
-              Browse Meals
-            </Link>
-            <Link
-              href="/providers"
-              className="text-gray-600 hover:text-primary-600 transition-colors"
-            >
-              Restaurants
-            </Link>
-            <Link
-              href="/about"
-              className="text-gray-600 hover:text-primary-600 transition-colors"
-            >
-              About
-            </Link>
-            <Link
-              href="/contact"
-              className="text-gray-600 hover:text-primary-600 transition-colors"
-            >
-              Contact
-            </Link>
-
-            {session ? (
-              <>
-                {role === "CUSTOMER" && (
-                  <>
-                    <Link
-                      href="/orders"
-                      className="text-gray-600 hover:text-primary-600"
-                    >
-                      My Orders
-                    </Link>
-                    <Link
-                      href="/cart"
-                      className="relative text-gray-600 hover:text-primary-600"
-                    >
-                      <ShoppingCart size={22} />
-                      {cartCount > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-primary-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                          {cartCount}
-                        </span>
-                      )}
-                    </Link>
-                  </>
+          <div className="hidden lg:flex items-center gap-1">{navLinks}</div>
+          <div className="flex items-center gap-2 sm:gap-3">
+            {role === "CUSTOMER" && (
+              <Link
+                href="/cart"
+                className="icon-button relative"
+                aria-label={`Cart, ${mounted ? cartCount : 0} items`}
+              >
+                <ShoppingCart size={20} />
+                {mounted && cartCount > 0 && (
+                  <span
+                    key={cartCount}
+                    className="reveal absolute -right-1 -top-1 rounded-full bg-primary-600 px-1.5 text-xs font-bold text-white"
+                  >
+                    {cartCount}
+                  </span>
                 )}
-                {role === "PROVIDER" && (
-                  <Link
-                    href="/provider/dashboard"
-                    className="flex items-center gap-1 text-gray-600 hover:text-primary-600"
-                  >
-                    <ChefHat size={18} /> Dashboard
-                  </Link>
-                )}
-                {role === "ADMIN" && (
-                  <Link
-                    href="/admin"
-                    className="text-gray-600 hover:text-primary-600"
-                  >
-                    Admin Panel
-                  </Link>
-                )}
-                <div className="flex items-center gap-2">
-                  <Link
-                    href="/profile"
-                    className="flex items-center gap-1 text-gray-600 hover:text-primary-600"
-                  >
-                    <User size={18} />
-                    <span className="text-sm">{session.user.name}</span>
-                  </Link>
-                  <button
-                    onClick={handleSignOut}
-                    className="text-gray-400 hover:text-red-500 transition-colors"
-                  >
-                    <LogOut size={18} />
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className="flex items-center gap-3">
-                <Link href="/login" className="btn-secondary text-sm py-1.5">
-                  Login
-                </Link>
-                <Link href="/register" className="btn-primary text-sm py-1.5">
-                  Sign Up
-                </Link>
-              </div>
+              </Link>
             )}
+            {session ? (
+              <div className="hidden lg:block">
+                <DropdownMenu open={profileOpen} onOpenChange={setProfileOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <button className="group flex items-center gap-2 rounded-xl border border-gray-200 bg-white/70 p-2 text-sm transition-colors hover:border-primary-200">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 font-bold text-primary-800">
+                        {session.user.name?.charAt(0)}
+                      </span>
+                      <span className="max-w-28 truncate">
+                        {session.user.name}
+                      </span>
+                      <ChevronDown
+                        size={15}
+                        className="transition-transform duration-200 group-data-[state=open]:rotate-180"
+                      />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <p className="truncate border-b border-gray-100 px-3 py-3 text-xs text-gray-500">
+                      {session.user.email}
+                    </p>
+                    <DropdownMenuItem asChild>
+                      <Link href={accountHref}>
+                        {role === "ADMIN" ? "Administration" : "My profile"}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => void handleSignOut()}
+                      className="text-red-700"
+                    >
+                      <LogOut size={16} /> Sign out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ) : (
+              !isPending && (
+                <div className="hidden sm:flex items-center gap-2">
+                  <Link href="/login" className="nav-link">
+                    Log in
+                  </Link>
+                  <Link href="/register" className="btn-primary">
+                    Get started
+                  </Link>
+                </div>
+              )
+            )}
+            <Dialog open={menuOpen} onOpenChange={setMenuOpen}>
+              <DialogTrigger asChild>
+                <button
+                  className="icon-button lg:hidden"
+                  aria-label="Open navigation"
+                >
+                  <Menu size={21} />
+                </button>
+              </DialogTrigger>
+              <DialogContent sheet aria-describedby={undefined}>
+                <div className="mb-6 flex items-center justify-between gap-4">
+                  <DialogTitle className="text-xl font-bold">
+                    Explore FoodHub
+                  </DialogTitle>
+                  <DialogClose asChild>
+                    <button
+                      className="icon-button"
+                      aria-label="Close navigation"
+                    >
+                      <X size={20} />
+                    </button>
+                  </DialogClose>
+                </div>
+                <div
+                  id="mobile-navigation"
+                  className="grid gap-1 border-t border-gray-100 py-4"
+                >
+                  {navLinks}
+                  <Link
+                    onClick={() => setMenuOpen(false)}
+                    href="/contact"
+                    className="nav-link"
+                  >
+                    Contact
+                  </Link>
+                  {session ? (
+                    <>
+                      <Link
+                        onClick={() => setMenuOpen(false)}
+                        href={accountHref}
+                        className="nav-link"
+                      >
+                        My account
+                      </Link>
+                      <button
+                        onClick={handleSignOut}
+                        className="nav-link text-left text-red-700"
+                      >
+                        Sign out
+                      </button>
+                    </>
+                  ) : (
+                    <div className="flex gap-3 pt-3">
+                      <Link
+                        onClick={() => setMenuOpen(false)}
+                        href="/login"
+                        className="btn-secondary flex-1"
+                      >
+                        Log in
+                      </Link>
+                      <Link
+                        onClick={() => setMenuOpen(false)}
+                        href="/register"
+                        className="btn-primary flex-1"
+                      >
+                        Get started
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
-
-          <button
-            className="md:hidden"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
         </div>
-      </div>
-
-      {menuOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white px-4 py-4 space-y-3">
-          <Link
-            href="/meals"
-            className="block text-gray-700 py-2"
-            onClick={() => setMenuOpen(false)}
-          >
-            Browse Meals
-          </Link>
-          <Link
-            href="/providers"
-            className="block text-gray-700 py-2"
-            onClick={() => setMenuOpen(false)}
-          >
-            Restaurants
-          </Link>
-          {session ? (
-            <>
-              {role === "CUSTOMER" && (
-                <>
-                  <Link
-                    href="/orders"
-                    className="block text-gray-700 py-2"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    My Orders
-                  </Link>
-                  <Link
-                    href="/cart"
-                    className="block text-gray-700 py-2"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Cart ({cartCount})
-                  </Link>
-                </>
-              )}
-              {role === "PROVIDER" && (
-                <Link
-                  href="/provider/dashboard"
-                  className="block text-gray-700 py-2"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  Provider Dashboard
-                </Link>
-              )}
-              {role === "ADMIN" && (
-                <Link
-                  href="/admin"
-                  className="block text-gray-700 py-2"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  Admin Panel
-                </Link>
-              )}
-              <button
-                onClick={handleSignOut}
-                className="block text-red-500 py-2"
-              >
-                Sign Out
-              </button>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className="block text-gray-700 py-2"
-                onClick={() => setMenuOpen(false)}
-              >
-                Login
-              </Link>
-              <Link
-                href="/register"
-                className="block text-gray-700 py-2"
-                onClick={() => setMenuOpen(false)}
-              >
-                Register
-              </Link>
-            </>
-          )}
-        </div>
-      )}
-    </nav>
+      </nav>
+    </header>
   );
 }
