@@ -1,5 +1,7 @@
 "use client";
 
+import { useSession } from "@/lib/auth-client";
+import { EmptyState } from "@/components/ui";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -11,6 +13,7 @@ import type { Order } from "@/types";
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCartStore();
+  const { data: session } = useSession();
   const placeOrder = usePlaceOrder();
   const router = useRouter();
   const [address, setAddress] = useState("");
@@ -19,10 +22,15 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="max-w-lg mx-auto px-4 py-16 text-center">
-        <p className="text-gray-500">Your cart is empty.</p>
-        <Link href="/meals" className="btn-primary mt-4 inline-block">
-          Browse Meals
-        </Link>
+        <EmptyState
+          title="Your next meal starts here"
+          description="Add a dish to your cart before checking out."
+          action={
+            <Link href="/meals" className="btn-primary">
+              Browse meals
+            </Link>
+          }
+        />
       </div>
     );
   }
@@ -43,14 +51,12 @@ export default function CheckoutPage() {
       toast.success("Order placed successfully!");
       router.push(`/orders/${(order as Order).id}`);
     } catch (err: unknown) {
-      toast.error(
-        err instanceof Error ? err.message : "Failed to place order"
-      );
+      toast.error(err instanceof Error ? err.message : "Failed to place order");
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
       <Link
         href="/cart"
         className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-800 mb-6"
@@ -59,8 +65,8 @@ export default function CheckoutPage() {
       </Link>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Checkout</h1>
 
-      <div className="grid gap-6">
-        <div className="card p-5">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,1fr)] items-start">
+        <div className="card p-6 lg:col-start-2 lg:row-start-1 lg:sticky lg:top-28">
           <h2 className="font-semibold text-gray-900 mb-3">Order Summary</h2>
           <div className="space-y-2">
             {items.map((item) => (
@@ -71,9 +77,7 @@ export default function CheckoutPage() {
                 <span>
                   {item.meal.title} × {item.quantity}
                 </span>
-                <span>
-                  ৳{(item.meal.price * item.quantity).toFixed(0)}
-                </span>
+                <span>৳{(item.meal.price * item.quantity).toFixed(0)}</span>
               </div>
             ))}
             <div className="border-t border-gray-100 pt-2 flex justify-between font-bold text-gray-900">
@@ -83,15 +87,40 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="card p-5 space-y-4">
-          <h2 className="font-semibold text-gray-900">Delivery Details</h2>
+        <form
+          onSubmit={handleSubmit}
+          className="card p-6 sm:p-8 space-y-5 lg:col-start-1 lg:row-start-1"
+        >
+          {placeOrder.error && (
+            <p
+              role="alert"
+              className="rounded-xl bg-red-50 p-3 text-sm text-red-700"
+            >
+              {placeOrder.error.message}
+            </p>
+          )}
+          <h2 className="text-xl font-bold text-gray-900">
+            Where should we deliver?
+          </h2>
+          {session && (
+            <div className="rounded-xl bg-gray-50 p-4 text-sm">
+              <p className="font-semibold">{session.user.name}</p>
+              <p className="mt-1 break-all text-gray-500">
+                {session.user.email}
+              </p>
+            </div>
+          )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="field-1"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               <MapPin size={14} className="inline mr-1" />
               Delivery Address *
             </label>
             <textarea
+              id="field-1"
               required
               rows={3}
               className="input resize-none"
@@ -102,10 +131,14 @@ export default function CheckoutPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="field-2"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Notes (optional)
             </label>
             <input
+              id="field-2"
               type="text"
               className="input"
               placeholder="Special instructions..."
@@ -114,9 +147,8 @@ export default function CheckoutPage() {
             />
           </div>
 
-          <div className="bg-blue-50 border border-blue-100 text-blue-700 text-sm p-3 rounded-xl">
-            💵 <strong>Cash on Delivery</strong> — Pay when your order
-            arrives
+          <div className="bg-primary-50 border border-primary-100 text-primary-800 text-sm p-3 rounded-xl">
+            💵 <strong>Cash on Delivery</strong> — Pay when your order arrives
           </div>
 
           <button
