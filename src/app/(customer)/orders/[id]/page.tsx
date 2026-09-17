@@ -1,27 +1,19 @@
 "use client";
+import { confirmAction } from "@/lib/confirm";
 
 import Link from "next/link";
-import { use, useState } from "react";
+import { useState } from "react";
+import { useParams } from "next/navigation";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { useOrder, useCancelOrder, useLeaveReview } from "@/hooks/useApi";
-import { LoadingScreen, Badge, StarRating } from "@/components/ui";
+import { LoadingScreen, Badge, StarRating, EmptyState } from "@/components/ui";
 import { ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
-import type { OrderStatus } from "@/types";
+import { OrderTimeline } from "@/components/features/orders/OrderTimeline";
 
-const statusSteps: OrderStatus[] = [
-  "PLACED",
-  "PREPARING",
-  "READY",
-  "DELIVERED",
-];
-
-export default function OrderDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
-  const { data: order, isLoading } = useOrder(id);
+export default function OrderDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const { data: order, isLoading, error, refetch } = useOrder(id);
   const cancelOrder = useCancelOrder();
   const leaveReview = useLeaveReview();
   const [reviewMealId, setReviewMealId] = useState<string | null>(null);
@@ -29,18 +21,36 @@ export default function OrderDetailPage({
   const [comment, setComment] = useState("");
 
   if (isLoading) return <LoadingScreen />;
+  if (error)
+    return (
+      <div className="page-container">
+        <ErrorState error={error} retry={() => void refetch()} />
+      </div>
+    );
   if (!order)
     return (
-      <div className="p-8 text-center text-gray-500">Order not found</div>
+      <div className="page-container py-10">
+        <EmptyState
+          title="Order not found"
+          description="This order is unavailable. Return to your orders to find your latest meal."
+          action={
+            <Link href="/orders" className="btn-primary">
+              My orders
+            </Link>
+          }
+        />
+      </div>
     );
 
-  const currentStep =
-    order.status === "CANCELLED"
-      ? -1
-      : statusSteps.indexOf(order.status as OrderStatus);
-
   const handleCancel = async () => {
-    if (!confirm("Cancel this order?")) return;
+    if (
+      !(await confirmAction(
+        "Cancel this order?",
+        "This will cancel the order before preparation starts.",
+        "Cancel order",
+      ))
+    )
+      return;
     try {
       await cancelOrder.mutateAsync(order.id);
       toast.success("Order cancelled");
@@ -61,13 +71,13 @@ export default function OrderDetailPage({
       setReviewMealId(null);
     } catch (err: unknown) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to submit review"
+        err instanceof Error ? err.message : "Failed to submit review",
       );
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8">
       <Link
         href="/orders"
         className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-800 mb-6"
@@ -75,7 +85,7 @@ export default function OrderDetailPage({
         <ArrowLeft size={18} /> My Orders
       </Link>
 
-      <div className="flex justify-between items-start mb-6">
+      <div className="flex flex-wrap gap-3 justify-between items-start mb-6">
         <div>
           <h1 className="text-xl font-bold text-gray-900">
             Order #{order.id.slice(-8).toUpperCase()}
@@ -88,44 +98,13 @@ export default function OrderDetailPage({
         <Badge label={order.status} variant={order.status} />
       </div>
 
-      {order.status !== "CANCELLED" && (
-        <div className="card p-5 mb-4">
-          <div className="flex items-center justify-between relative">
-            <div className="absolute top-3 left-0 right-0 h-0.5 bg-gray-200 -z-0" />
-            <div
-              className="absolute top-3 left-0 h-0.5 bg-primary-500 -z-0 transition-all"
-              style={{
-                width: `${(currentStep / (statusSteps.length - 1)) * 100}%`,
-              }}
-            />
-            {statusSteps.map((step, idx) => (
-              <div key={step} className="flex flex-col items-center z-10">
-                <div
-                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs ${
-                    idx <= currentStep
-                      ? "bg-primary-500 border-primary-500 text-white"
-                      : "bg-white border-gray-300"
-                  }`}
-                >
-                  {idx <= currentStep ? "✓" : ""}
-                </div>
-                <span className="text-xs mt-1 capitalize text-gray-500">
-                  {step}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <OrderTimeline status={order.status} />
 
       <div className="card p-5 mb-4">
         <h2 className="font-semibold text-gray-900 mb-3">Items</h2>
         <div className="space-y-3">
           {order.items?.map((item) => (
-            <div
-              key={item.id}
-              className="flex justify-between items-center"
-            >
+            <div key={item.id} className="flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
                   🍽️
@@ -181,7 +160,7 @@ export default function OrderDetailPage({
                 <button
                   onClick={() =>
                     setReviewMealId(
-                      reviewMealId === item.mealId ? null : item.mealId
+                      reviewMealId === item.mealId ? null : item.mealId,
                     )
                   }
                   className="text-xs text-primary-600 hover:underline"
@@ -193,6 +172,7 @@ export default function OrderDetailPage({
                 <div className="mt-3 p-3 bg-gray-50 rounded-xl space-y-2">
                   <StarRating rating={rating} onRate={setRating} />
                   <textarea
+                    aria-label="Your meal review"
                     className="input text-sm resize-none"
                     rows={2}
                     placeholder="Share your experience..."
