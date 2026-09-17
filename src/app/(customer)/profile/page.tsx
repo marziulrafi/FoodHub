@@ -28,13 +28,13 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-8">
+    <div className="max-w-3xl mx-auto px-4 py-10">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">My Profile</h1>
 
-      <div className="card p-6">
-        <div className="flex items-center gap-4 mb-6">
+      <div className="card p-6 sm:p-8">
+        <div className="flex items-center gap-4 mb-6 rounded-2xl bg-primary-50 p-5">
           <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center text-3xl font-bold text-primary-700">
-            {user.name[0].toUpperCase()}
+            {user.name.charAt(0).toUpperCase()}
           </div>
           <div>
             <h2 className="font-bold text-xl text-gray-900">{user.name}</h2>
@@ -51,7 +51,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="space-y-3 text-sm">
+        <div className="space-y-5 text-sm break-all">
           <div className="flex items-center gap-3 text-gray-700">
             <Mail size={16} className="text-gray-400" />
             {user.email}
