@@ -1,8 +1,10 @@
 "use client";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { ContentSkeleton } from "@/components/ui/ContentSkeleton";
 
 import { useState } from "react";
 import { useProviderOrders, useUpdateOrderStatus } from "@/hooks/useApi";
-import { Spinner, Badge } from "@/components/ui";
+import { Badge, EmptyState } from "@/components/ui";
 import toast from "react-hot-toast";
 import type { Order, OrderStatus } from "@/types";
 
@@ -22,12 +24,12 @@ const nextStatus: Record<string, string> = {
 };
 
 export default function ProviderOrdersPage() {
-  const { data: orders, isLoading } = useProviderOrders();
+  const { data: orders, isLoading, error, refetch } = useProviderOrders();
   const updateStatus = useUpdateOrderStatus();
   const [filter, setFilter] = useState<string>("all");
 
   const filtered = orders?.filter(
-    (o) => filter === "all" || o.status === filter
+    (o) => filter === "all" || o.status === filter,
   );
 
   const handleStatus = async (id: string, status: string) => {
@@ -63,13 +65,14 @@ export default function ProviderOrdersPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-12">
-          <Spinner />
-        </div>
+        <ContentSkeleton />
+      ) : error ? (
+        <ErrorState error={error} retry={() => void refetch()} />
       ) : !filtered || filtered.length === 0 ? (
-        <div className="card p-12 text-center text-gray-500">
-          No orders in this category
-        </div>
+        <EmptyState
+          title="No orders here yet"
+          description="Orders matching this status will appear here."
+        />
       ) : (
         <div className="space-y-4">
           {filtered.map((order: Order) => (
@@ -80,7 +83,10 @@ export default function ProviderOrdersPage() {
                     <span className="font-semibold text-gray-900">
                       #{order.id.slice(-8).toUpperCase()}
                     </span>
-                    <Badge label={order.status} variant={order.status as OrderStatus} />
+                    <Badge
+                      label={order.status}
+                      variant={order.status as OrderStatus}
+                    />
                   </div>
                   <p className="text-sm text-gray-600">
                     👤 {(order.customer as { name?: string })?.name}

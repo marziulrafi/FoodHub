@@ -1,4 +1,8 @@
 "use client";
+import { Modal } from "@/components/ui/Modal";
+import { confirmAction } from "@/lib/confirm";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { ContentSkeleton } from "@/components/ui/ContentSkeleton";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -10,10 +14,11 @@ import {
   useDeleteMeal,
   useCategories,
 } from "@/hooks/useApi";
-import { Spinner, Badge } from "@/components/ui";
+import { Badge } from "@/components/ui";
 import ImageUploader from "@/components/features/ImageUploader";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 import toast from "react-hot-toast";
+import type { UploadedImage } from "@/lib/uploadImage";
 import type { Meal } from "@/types";
 
 interface MealForm {
@@ -47,7 +52,12 @@ export default function ProviderMenuPage() {
   } = useMyProviderProfile();
 
   const mealsEnabled = !profileLoading && !!myProfile && !profileError;
-  const { data: meals, isLoading: mealsLoading } = useProviderMeals(mealsEnabled);
+  const {
+    data: meals,
+    isLoading: mealsLoading,
+    error,
+    refetch,
+  } = useProviderMeals(mealsEnabled);
   const { data: categories } = useCategories();
   const addMeal = useAddMeal();
   const updateMeal = useUpdateMeal();
@@ -60,19 +70,13 @@ export default function ProviderMenuPage() {
 
   useEffect(() => {
     if (!profileLoading && (!myProfile || profileError)) {
-      toast.error(
-        "Please create your restaurant profile before adding meals."
-      );
+      toast.error("Please create your restaurant profile before adding meals.");
       router.replace("/provider/dashboard");
     }
   }, [profileLoading, myProfile, profileError, router]);
 
   if (profileLoading) {
-    return (
-      <div className="flex justify-center py-12">
-        <Spinner />
-      </div>
-    );
+    return <ContentSkeleton />;
   }
 
   if (!myProfile || profileError) {
@@ -101,7 +105,7 @@ export default function ProviderMenuPage() {
     setShowModal(true);
   };
 
-  const handleUploadSuccess = (imageData: any) => {
+  const handleUploadSuccess = (imageData: UploadedImage) => {
     setForm((prev) => ({
       ...prev,
       image: imageData.optimizedUrl || imageData.secure_url || prev.image,
@@ -139,62 +143,38 @@ export default function ProviderMenuPage() {
     }
   };
 
-  const handleDelete = (id: string, name: string) => {
-    toast(
-      (t) => (
-        <div className="flex flex-col gap-2">
-          <p className="text-sm font-semibold text-gray-800">Delete "{name}"?</p>
-          <p className="text-xs text-gray-500">This action cannot be undone.</p>
-          <div className="flex gap-2 mt-1">
-            <button
-              onClick={async () => {
-                toast.dismiss(t.id);
-                try {
-                  await deleteMeal.mutateAsync(id);
-                  toast.success(`"${name}" deleted successfully.`);
-                } catch {
-                  toast.error("Failed to delete the meal.");
-                }
-              }}
-              className="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs font-medium py-1.5 px-3 rounded-lg transition-colors"
-            >
-              Yes, Delete
-            </button>
-            <button
-              onClick={() => toast.dismiss(t.id)}
-              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium py-1.5 px-3 rounded-lg transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      ),
-      {
-        duration: Infinity, // stays until user clicks a button
-        position: "top-center",
-        style: {
-          padding: "14px 16px",
-          minWidth: "260px",
-          borderRadius: "12px",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
-        },
-      }
-    );
+  const handleDelete = async (id: string, name: string) => {
+    if (
+      !(await confirmAction(
+        "Delete meal?",
+        `“${name}” will be removed from your menu. This cannot be undone.`,
+        "Delete meal",
+      ))
+    )
+      return;
+    try {
+      await deleteMeal.mutateAsync(id);
+      toast.success("Meal deleted successfully.");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to delete the meal.",
+      );
+    }
   };
 
   const field =
     (key: keyof MealForm) =>
-      (
-        e: React.ChangeEvent<
-          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-        >
-      ) => {
-        const value =
-          e.target.type === "checkbox"
-            ? (e.target as HTMLInputElement).checked
-            : e.target.value;
-        setForm((p) => ({ ...p, [key]: value }));
-      };
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >,
+    ) => {
+      const value =
+        e.target.type === "checkbox"
+          ? (e.target as HTMLInputElement).checked
+          : e.target.value;
+      setForm((p) => ({ ...p, [key]: value }));
+    };
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -209,9 +189,9 @@ export default function ProviderMenuPage() {
       </div>
 
       {mealsLoading ? (
-        <div className="flex justify-center py-12">
-          <Spinner />
-        </div>
+        <ContentSkeleton />
+      ) : error ? (
+        <ErrorState error={error} retry={() => void refetch()} />
       ) : !meals || meals.length === 0 ? (
         <div className="card p-12 text-center text-gray-500">
           <p className="text-4xl mb-3">🍽️</p>
@@ -235,7 +215,9 @@ export default function ProviderMenuPage() {
               <div className="p-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-semibold text-gray-900">{meal.title}</h3>
+                    <h3 className="font-semibold text-gray-900">
+                      {meal.title}
+                    </h3>
                     <p className="text-primary-600 font-bold">
                       ৳{meal.price.toFixed(0)}
                     </p>
@@ -253,6 +235,8 @@ export default function ProviderMenuPage() {
                     <Pencil size={13} /> Edit
                   </button>
                   <button
+                    aria-label={`Delete ${meal.title}`}
+                    disabled={deleteMeal.isPending}
                     onClick={() => handleDelete(meal.id, meal.title)}
                     className="btn-danger text-sm px-3 py-1.5"
                   >
@@ -266,13 +250,17 @@ export default function ProviderMenuPage() {
       )}
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <Modal
+          label={editingMeal ? "Edit meal" : "Add meal"}
+          onClose={() => setShowModal(false)}
+        >
           <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center p-5 border-b border-gray-100">
               <h2 className="text-lg font-bold text-gray-900">
                 {editingMeal ? "Edit Meal" : "Add Meal"}
               </h2>
               <button
+                aria-label="Close meal form"
                 onClick={() => setShowModal(false)}
                 className="text-gray-400 hover:text-gray-600"
               >
@@ -280,11 +268,23 @@ export default function ProviderMenuPage() {
               </button>
             </div>
             <form onSubmit={handleSubmit} className="p-5 space-y-4">
+              {(addMeal.error || updateMeal.error) && (
+                <p
+                  role="alert"
+                  className="rounded-xl bg-red-50 p-3 text-sm text-red-700"
+                >
+                  {(addMeal.error || updateMeal.error)?.message}
+                </p>
+              )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="field-1"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Title *
                 </label>
                 <input
+                  id="field-1"
                   className="input"
                   required
                   value={form.title}
@@ -293,10 +293,14 @@ export default function ProviderMenuPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="field-2"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Description
                 </label>
                 <textarea
+                  id="field-2"
                   className="input resize-none"
                   rows={2}
                   value={form.description}
@@ -306,10 +310,14 @@ export default function ProviderMenuPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="field-3"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Price (৳) *
                   </label>
                   <input
+                    id="field-3"
                     className="input"
                     required
                     type="number"
@@ -320,10 +328,14 @@ export default function ProviderMenuPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="field-4"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Category
                   </label>
                   <select
+                    id="field-4"
                     className="input"
                     value={form.categoryId}
                     onChange={field("categoryId")}
@@ -359,7 +371,9 @@ export default function ProviderMenuPage() {
                   </p>
                 )}
                 {imageUploadError && (
-                  <p className="text-sm text-red-600 mt-2">{imageUploadError}</p>
+                  <p className="text-sm text-red-600 mt-2">
+                    {imageUploadError}
+                  </p>
                 )}
               </div>
               <div className="flex flex-wrap gap-4">
@@ -379,7 +393,7 @@ export default function ProviderMenuPage() {
                         {key.replace("is", "")}
                       </span>
                     </label>
-                  )
+                  ),
                 )}
               </div>
               <div className="flex gap-3 pt-2">
@@ -395,12 +409,16 @@ export default function ProviderMenuPage() {
                   disabled={addMeal.isPending || updateMeal.isPending}
                   className="btn-primary flex-1"
                 >
-                  {editingMeal ? "Update" : "Add Meal"}
+                  {addMeal.isPending || updateMeal.isPending
+                    ? "Saving…"
+                    : editingMeal
+                      ? "Update meal"
+                      : "Add meal"}
                 </button>
               </div>
             </form>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );
