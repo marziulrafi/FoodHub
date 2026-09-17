@@ -6,7 +6,8 @@ import toast from "react-hot-toast";
 import { useSession } from "@/lib/auth-client";
 import { useCartStore } from "@/stores/cart.store";
 import { useMeal } from "@/hooks/useApi";
-import { Badge, EmptyState, Skeleton } from "@/components/ui";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { Badge, EmptyState, Skeleton, StarRating } from "@/components/ui";
 import { Leaf, ShoppingCart } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -14,7 +15,7 @@ export default function MealDetailPage() {
   const params = useParams();
   const id = (params?.id as string) || "";
 
-  const { data: meal, isLoading, error } = useMeal(id);
+  const { data: meal, isLoading, error, refetch } = useMeal(id);
   const addItem = useCartStore((s) => s.addItem);
   const { data: session } = useSession();
 
@@ -56,7 +57,7 @@ export default function MealDetailPage() {
   if (isLoading) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-10">
-        <Skeleton className="w-full h-[320px]" />
+        <Skeleton className="w-full h-[320px] lg:h-[480px]" />
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <Skeleton className="h-10 w-2/3" />
           <Skeleton className="h-10 w-1/3" />
@@ -66,7 +67,14 @@ export default function MealDetailPage() {
     );
   }
 
-  if (error || !meal) {
+  if (error)
+    return (
+      <div className="page-container py-8">
+        <ErrorState error={error} retry={() => void refetch()} />
+      </div>
+    );
+
+  if (!meal) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-12">
         <EmptyState
@@ -84,17 +92,23 @@ export default function MealDetailPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+    <div className="page-container py-10">
+      <Link
+        href="/meals"
+        className="mb-6 inline-block text-sm text-gray-500 hover:text-primary-700"
+      >
+        ← Back to the menu
+      </Link>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start">
         <div>
           {meal.image ? (
             <img
               src={meal.image}
               alt={meal.title}
-              className="w-full h-[320px] object-cover rounded-2xl bg-gray-50"
+              className="w-full h-[320px] lg:h-[480px] object-cover rounded-2xl bg-gray-50"
             />
           ) : (
-            <div className="w-full h-[320px] rounded-2xl bg-gray-100 flex items-center justify-center text-6xl">
+            <div className="w-full h-[320px] lg:h-[480px] rounded-2xl bg-gray-100 flex items-center justify-center text-6xl">
               🍽️
             </div>
           )}
@@ -103,10 +117,11 @@ export default function MealDetailPage() {
               {badges.map((b, i) => (
                 <span
                   key={i}
-                  className={`text-xs px-3 py-1 rounded-full font-medium ${b.kind === "vegan"
+                  className={`text-xs px-3 py-1 rounded-full font-medium ${
+                    b.kind === "vegan"
                       ? "bg-green-500 text-white"
                       : "bg-green-200 text-green-800"
-                    }`}
+                  }`}
                 >
                   <Leaf size={14} className="inline mr-1" /> {b.text}
                 </span>
@@ -116,12 +131,18 @@ export default function MealDetailPage() {
         </div>
 
         <div>
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{meal.title}</h1>
               {meal.provider?.restaurantName && (
                 <p className="text-gray-500 mt-2 text-sm">
-                  From {meal.provider.restaurantName}
+                  From{" "}
+                  <Link
+                    href={`/providers/${meal.providerId}`}
+                    className="font-semibold text-primary-700 hover:underline"
+                  >
+                    {meal.provider.restaurantName}
+                  </Link>
                 </p>
               )}
             </div>
@@ -145,7 +166,7 @@ export default function MealDetailPage() {
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Availability</span>
               <Badge
-                label={meal.isAvailable ? "ACTIVE" : "SUSPENDED"}
+                label={meal.isAvailable ? "Available to order" : "Unavailable"}
                 variant={meal.isAvailable ? "ACTIVE" : "SUSPENDED"}
               />
             </div>
@@ -168,7 +189,36 @@ export default function MealDetailPage() {
           </div>
         </div>
       </div>
+      <section className="mt-12 border-t border-gray-200 pt-8">
+        <h2 className="section-title mb-5">From the table</h2>
+        {meal.reviews?.length ? (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {meal.reviews.map((review) => (
+              <article key={review.id} className="card p-5">
+                <div className="flex flex-wrap justify-between gap-2">
+                  <h3 className="font-semibold">
+                    {review.customer?.name || "Customer"}
+                  </h3>
+                  <StarRating rating={review.rating} readonly />
+                </div>
+                {review.comment && (
+                  <p className="mt-3 text-sm leading-6 text-gray-600">
+                    {review.comment}
+                  </p>
+                )}
+                <p className="mt-3 text-xs text-gray-400">
+                  {new Date(review.createdAt).toLocaleDateString()}
+                </p>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500">
+            No reviews yet. Customers can leave a review after their order is
+            delivered.
+          </p>
+        )}
+      </section>
     </div>
   );
 }
-
