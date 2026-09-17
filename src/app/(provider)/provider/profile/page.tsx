@@ -1,4 +1,5 @@
 "use client";
+import { ErrorState } from "@/components/ui/ErrorState";
 
 import { useState, useEffect, type FormEvent } from "react";
 import { useMyProviderProfile, useUpdateProviderProfile } from "@/hooks/useApi";
@@ -8,7 +9,7 @@ import toast from "react-hot-toast";
 
 export default function ProviderProfilePage() {
   const queryClient = useQueryClient();
-  const { data: profile, isLoading, error } = useMyProviderProfile();
+  const { data: profile, isLoading, error, refetch } = useMyProviderProfile();
   const updateProfile = useUpdateProviderProfile();
 
   const [form, setForm] = useState({
@@ -60,7 +61,9 @@ export default function ProviderProfilePage() {
       toast.success("Restaurant profile updated successfully.");
       queryClient.invalidateQueries({ queryKey: ["provider", "me"] });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Unable to update profile.");
+      toast.error(
+        err instanceof Error ? err.message : "Unable to update profile.",
+      );
     }
   };
 
@@ -68,12 +71,22 @@ export default function ProviderProfilePage() {
     return <LoadingScreen />;
   }
 
-  if (error || !profile) {
+  if (error)
+    return (
+      <div className="page-container py-8">
+        <ErrorState error={error} retry={() => void refetch()} />
+      </div>
+    );
+  if (!profile) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16">
         <div className="card p-8 text-center">
-          <h1 className="text-xl font-semibold text-gray-900">Provider Profile</h1>
-          <p className="text-gray-500 mt-3">Unable to load your profile. Please try again later.</p>
+          <h1 className="text-xl font-semibold text-gray-900">
+            Provider Profile
+          </h1>
+          <p className="text-gray-500 mt-3">
+            Unable to load your profile. Please try again later.
+          </p>
         </div>
       </div>
     );
@@ -84,33 +97,57 @@ export default function ProviderProfilePage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Restaurant Profile</h1>
         <p className="text-gray-500 mt-2">
-          Keep your restaurant details up to date so customers see the latest information.
+          Keep your restaurant details up to date so customers see the latest
+          information.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 rounded-3xl border border-gray-200 bg-white p-5 sm:p-8 shadow-sm"
+      >
+        {updateProfile.error && (
+          <p
+            role="alert"
+            className="rounded-xl bg-red-50 p-3 text-sm text-red-700"
+          >
+            {updateProfile.error.message}
+          </p>
+        )}
         <div className="grid gap-6 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="field-1"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Restaurant name
             </label>
             <input
+              id="field-1"
               className="input w-full"
               value={form.restaurantName}
-              onChange={(e) => setForm((prev) => ({ ...prev, restaurantName: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, restaurantName: e.target.value }))
+              }
               placeholder="My restaurant name"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="field-2"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Phone number
             </label>
             <input
+              id="field-2"
               className="input w-full"
               value={form.phone}
-              onChange={(e) => setForm((prev) => ({ ...prev, phone: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, phone: e.target.value }))
+              }
               placeholder="0123456789"
             />
           </div>
@@ -118,63 +155,111 @@ export default function ProviderProfilePage() {
 
         <div className="grid gap-6 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+            <label
+              htmlFor="field-3"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              City
+            </label>
             <input
+              id="field-3"
               className="input w-full"
               value={form.city}
-              onChange={(e) => setForm((prev) => ({ ...prev, city: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, city: e.target.value }))
+              }
               placeholder="Dhaka"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+            <label
+              htmlFor="field-4"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Address
+            </label>
             <input
+              id="field-4"
               className="input w-full"
               value={form.address}
-              onChange={(e) => setForm((prev) => ({ ...prev, address: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, address: e.target.value }))
+              }
               placeholder="House 12, Road 4, Block C"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+          <label
+            htmlFor="field-5"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Description
+          </label>
           <textarea
+            id="field-5"
             className="input w-full resize-none"
             rows={4}
             value={form.description}
-            onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, description: e.target.value }))
+            }
             placeholder="Describe your restaurant, cuisine, and specialties."
           />
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Logo URL</label>
+            <label
+              htmlFor="field-6"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Logo URL
+            </label>
             <input
+              id="field-6"
               className="input w-full"
               value={form.logo}
-              onChange={(e) => setForm((prev) => ({ ...prev, logo: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, logo: e.target.value }))
+              }
               placeholder="https://..."
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Banner URL</label>
+            <label
+              htmlFor="field-7"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Banner URL
+            </label>
             <input
+              id="field-7"
               className="input w-full"
               value={form.banner}
-              onChange={(e) => setForm((prev) => ({ ...prev, banner: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, banner: e.target.value }))
+              }
               placeholder="https://..."
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Cuisine types</label>
+          <label
+            htmlFor="field-8"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Cuisine types
+          </label>
           <input
+            id="field-8"
             className="input w-full"
             value={form.cuisineTypes}
-            onChange={(e) => setForm((prev) => ({ ...prev, cuisineTypes: e.target.value }))}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, cuisineTypes: e.target.value }))
+            }
             placeholder="Biryani, Chinese, Fast food"
           />
           <p className="text-xs text-gray-500 mt-1">
@@ -185,7 +270,7 @@ export default function ProviderProfilePage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm text-gray-500">
-              Your profile is saved instantly to the backend when you update.
+              Save your changes to update your restaurant listing.
             </p>
           </div>
           <button
